@@ -6,8 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SpaceShip is ERC1155, Ownable {
     mapping (uint256 => string) private URIs;
-
-    // https://ipfs.io/ipfs/bafybeidw47z5awqu3tv4dfg2ooo4ps7co6huw4xhecdh6hzz3ucrcvyyre/{id}.json
+    mapping (address => uint256) public whitelistedAddresses;
 
     constructor() ERC1155("") {}
 
@@ -21,5 +20,9 @@ contract SpaceShip is ERC1155, Ownable {
 
     function mint(address _Recipient, uint256 _TokenID, uint256 _Amount) public onlyOwner {
       _mint(_Recipient, _TokenID, _Amount, "");
+    }
+
+    function updateWhitelistedAddresses(address _Address, uint256 _Amount) public onlyOwner {
+      whitelistedAddresses[_Address] = _Amount;
     }
 }
