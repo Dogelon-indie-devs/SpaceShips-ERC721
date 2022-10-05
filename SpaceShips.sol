@@ -25,4 +25,11 @@ contract SpaceShip is ERC1155, Ownable {
     function updateWhitelistedAddresses(address _Address, uint256 _Amount) public onlyOwner {
       whitelistedAddresses[_Address] = _Amount;
     }
+
+    function whitelistMint(address _Recipient, uint256 _TokenID, uint256 _Amount) public {
+      require( _Amount >= 1, "Insufficient Amount!");
+      require(whitelistedAddresses[msg.sender] >= _Amount, "This Address Is Not Whitelisted Yet!");
+      _mint(_Recipient, _TokenID, _Amount, "");
+      whitelistedAddresses[msg.sender] -= _Amount;
+    }
 }
