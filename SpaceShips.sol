@@ -11,7 +11,7 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
 
     constructor() ERC1155("") {}
 
-    function getTokenUri(uint256 _TokenID) public view returns (string memory) {
+    function uri(uint256 _TokenID) override public view returns (string memory) {
       return(URIs[_TokenID]);
     }
 
