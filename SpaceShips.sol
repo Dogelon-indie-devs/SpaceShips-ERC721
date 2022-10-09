@@ -20,14 +20,15 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
   
     function AddNewGeneration(uint256 _ID, string memory _Uri, uint256 _Price, uint256 _MaxSupply, bool _Unlocked) public onlyOwner { 
       Generations.push(NewGeneration(_ID, _Uri, _Price, _MaxSupply, _Unlocked));
+      //setTokenUri(0, _Uri);
      }  
 
     function UnlockGeneration(uint256 _GenerationID) public onlyOwner {
-      Generations[_GenerationID].Unlocked = true;
+      Generations[_GenerationID - 1].Unlocked = true;
     }
 
     function LockGeneration(uint256 _GenerationID) public onlyOwner {
-      Generations[_GenerationID].Unlocked = false;
+      Generations[_GenerationID - 1].Unlocked = false;
     }
 
     function GenerationsCount() public view returns (uint256) {
@@ -35,11 +36,11 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
     }
 
     function IsGenerationUnlocked(uint256 _GenerationID) public view returns (bool) {
-      return(Generations[_GenerationID].Unlocked);
+      return(Generations[_GenerationID - 1].Unlocked);
     }
 
     function ExtractGenerationUri(uint256 _GenerationID) public view returns (string memory) {
-      return(Generations[_GenerationID].Uri);
+      return(Generations[_GenerationID - 1].Uri);
     }
 
     function uri(uint256 _TokenID) override public view returns (string memory) {
