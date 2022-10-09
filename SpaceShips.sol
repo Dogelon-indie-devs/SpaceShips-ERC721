@@ -6,8 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DogelonSpaceShipNFT is ERC1155, Ownable {
     mapping (uint256 => string) private URIs;
-    mapping (address => uint256) public whitelistedAddresses;
-    mapping (uint256 => uint) public expirationDate;
 
     constructor() ERC1155("") {}
 
@@ -19,26 +17,7 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       URIs[_TokenID] = _uri;
     }
 
-    function setExpirationDate(uint256 _TokenID, uint numberOfDays) public onlyOwner {
-      expirationDate[_TokenID] = block.timestamp + (numberOfDays * 1 days);
-    }
-
-    function isTokenNotExpired(uint256 _TokenID) public view returns (bool) {
-      return block.timestamp < expirationDate[_TokenID];
-    }
-
     function mint(address _Recipient, uint256 _TokenID, uint256 _Amount) public onlyOwner {
       _mint(_Recipient, _TokenID, _Amount, "");
-    }
-
-    function updateWhitelistedAddresses(address _Address, uint256 _Amount) public onlyOwner {
-      whitelistedAddresses[_Address] = _Amount;
-    }
-
-    function whitelistMint(address _Recipient, uint256 _TokenID, uint256 _Amount) public {
-      require( _Amount >= 1, "Insufficient Amount!");
-      require(whitelistedAddresses[msg.sender] >= _Amount, "This Address Is Not Whitelisted Yet!");
-      _mint(_Recipient, _TokenID, _Amount, "");
-      whitelistedAddresses[msg.sender] -= _Amount;
     }
 }
