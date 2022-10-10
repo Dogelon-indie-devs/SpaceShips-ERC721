@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract DogelonSpaceShipNFT is ERC1155, Ownable {
- 
+   string BluePrintURI;
     struct NewGeneration{
       uint256 ID;
       string Uri;
@@ -15,6 +15,7 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       bool Unlocked;  
     }  
     NewGeneration[] private Generations; 
+    mapping (uint256 => bool) MintedTokens;
 
     constructor() ERC1155("") {}
   
@@ -59,14 +60,24 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       return(Generations[_GenerationID - 1].Uri);
     }
 
-    function uri(uint256 _TokenID) override public view returns (string memory) {
-      return(     
-        string(abi.encodePacked(ExtractGenerationUri(ExtractGenerationIDByTokenID(_TokenID)), Strings.toString(_TokenID), ".json"))       
-      );
+    function uri(uint256 _TokenID) override public view returns (string memory) {    
+      string memory MainURI;
+      if (MintedTokens[_TokenID]) {
+        MainURI = string(abi.encodePacked(ExtractGenerationUri(ExtractGenerationIDByTokenID(_TokenID)), Strings.toString(_TokenID), ".json"));   
+      } else {
+        MainURI = BluePrintURI;   
+      }     
+      return(MainURI);             
+    }
+ 
+    function SetBluePrintURI(string memory _NewURI) public onlyOwner{
+      BluePrintURI = _NewURI;
     }
 
-    function mint(address _Recipient, uint256 _TokenID, uint256 _Amount) public onlyOwner {
+    function mint(address _Recipient, uint256 _TokenID, uint256 _Amount) public {
       require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
+      require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!"); 
       _mint(_Recipient, _TokenID, _Amount, "");
+      MintedTokens[_TokenID] = true;
     }
 }
