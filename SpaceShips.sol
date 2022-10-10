@@ -66,6 +66,7 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
     }
 
     function mint(address _Recipient, uint256 _TokenID, uint256 _Amount) public onlyOwner {
+      require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
       _mint(_Recipient, _TokenID, _Amount, "");
     }
 }
