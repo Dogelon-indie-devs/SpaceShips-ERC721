@@ -70,8 +70,12 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       }     
       return(MainURI);             
     }
- 
-    function ChangeBluePrintURI(uint256 _GenerationID, string memory _NewURI) public onlyOwner{
+   
+    function ChangeGenerationURI(uint256 _GenerationID, string memory _NewURI) public onlyOwner{
+      Generations[_GenerationID - 1].Uri = _NewURI; 
+    }
+
+    function ChangeGenerationBluePrintURI(uint256 _GenerationID, string memory _NewURI) public onlyOwner{
       Generations[_GenerationID - 1].BluePrintUri = _NewURI; 
     }
 
