@@ -32,11 +32,11 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       Generations[_GenerationID - 1].Unlocked = false;
     }
 
-    function GenerationsCount() public view returns (uint256) {
+    function GenerationsCount() public view onlyOwner returns (uint256) {
       return(Generations.length);
     }
 
-    function ExtractGenerationIDByTokenID(uint256 _TokenID) public view returns (uint256) {
+    function ExtractGenerationIDByTokenID(uint256 _TokenID) private view returns (uint256) {
       require(Generations.length >= 1, "Generations Empty!");
       require(_TokenID >= 1, "Invalid Token ID!");
       require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!");  
@@ -53,11 +53,11 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       return(GenerationID); 
     }
 
-    function IsGenerationUnlocked(uint256 _GenerationID) public view returns (bool) {
+    function IsGenerationUnlocked(uint256 _GenerationID) private view returns (bool) {
       return(Generations[_GenerationID - 1].Unlocked);
     }
 
-    function ExtractGenerationUri(uint256 _GenerationID) public view returns (string memory) {
+    function ExtractGenerationUri(uint256 _GenerationID) private view returns (string memory) {
       return(Generations[_GenerationID - 1].Uri);
     }
 
