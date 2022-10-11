@@ -16,7 +16,10 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       bool Unlocked;  
     }  
     NewGeneration[] private Generations; 
-    mapping (uint256 => bool) MintedTokens;
+
+    mapping (uint256 => bool) private FullyBuiltedTokens;
+    mapping (uint256 => bool) private MintedTokens;
+    mapping (uint256 => address) private TokensOwners;
 
     constructor() ERC1155("") {}
   
@@ -63,7 +66,7 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
 
     function uri(uint256 _TokenID) override public view returns (string memory) {    
       string memory MainURI;
-      if (MintedTokens[_TokenID]) {
+      if (FullyBuiltedTokens[_TokenID]) {
         MainURI = string(abi.encodePacked(ExtractGenerationUri(ExtractGenerationIDByTokenID(_TokenID)), Strings.toString(_TokenID), ".json"));   
       } else {
         MainURI = Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].BluePrintUri;   
@@ -79,14 +82,23 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       Generations[_GenerationID - 1].BluePrintUri = _NewURI; 
     }
 
-    function mint(address _Recipient, uint256 _TokenID, uint256 _Amount) public payable {
+    function SetTokenAsFullyBuilted(uint256 _TokenID) public {
+      require(TokensOwners[_TokenID] == msg.sender || msg.sender == Owner, "Only Owner Can Fully Built Tokens!");
+      FullyBuiltedTokens[_TokenID] = true;
+    }
+
+    function Withdraw() external onlyOwner {
+      payable(msg.sender).transfer(address(this).balance);
+    }
+
+    function mint(uint256 _TokenID) public payable {
       require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
       require(_TokenID >= 1, "Invalid Token ID!");
       require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!"); 
       require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
-      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price * _Amount, "Not Enough Funds!");
-      
-      _mint(_Recipient, _TokenID, _Amount, "");
+      //require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");   
+      _mint(msg.sender, _TokenID, 1, "");
       MintedTokens[_TokenID] = true;
+      TokensOwners[_TokenID] = msg.sender;
     }
 }
