@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract DogelonSpaceShipNFT is ERC1155, Ownable {
     
@@ -95,7 +96,8 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       return(Generations[_GenerationID - 1].CurrentSupply);
     }
 
-    function Withdraw() external onlyOwner {
+    function Withdraw(address _TokenContract, uint256 _Amount) external onlyOwner {
+      IERC20(_TokenContract).transfer(msg.sender, _Amount);
       payable(msg.sender).transfer(address(this).balance);
     }
 
