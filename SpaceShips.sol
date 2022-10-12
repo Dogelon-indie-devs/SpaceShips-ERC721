@@ -91,6 +91,10 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       FullyBuiltedTokens[_TokenID] = true;
     }
 
+    function GetGenerationCurrentSupply(uint256 _GenerationID) public view onlyOwner returns (uint256) {
+      return(Generations[_GenerationID - 1].CurrentSupply);
+    }
+
     function Withdraw() external onlyOwner {
       payable(msg.sender).transfer(address(this).balance);
     }
