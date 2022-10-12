@@ -6,7 +6,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract DogelonSpaceShipNFT is ERC1155, Ownable {
-
+    
+    address public Owner;
     struct NewGeneration{
       uint256 ID;
       string Uri;
@@ -21,7 +22,9 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
     mapping (uint256 => bool) private MintedTokens;
     mapping (uint256 => address) private TokensOwners;
 
-    constructor() ERC1155("") {}
+    constructor() ERC1155("") {
+      Owner = msg.sender;
+    }
   
     function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply, bool _Unlocked) public onlyOwner { 
       Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _Price, _MaxSupply, _Unlocked)); 
