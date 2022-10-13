@@ -32,9 +32,13 @@ contract SpaceShipNFT is ERC1155, Ownable {
   
     modifier MintConditions(uint256 _TokenID) {
       require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
+      require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
+      _;
+    }
+
+    modifier TokenIDConditions(uint256 _TokenID) {
       require(_TokenID >= 1, "Invalid Token ID!");
       require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!"); 
-      require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
       _;
     }
 
@@ -55,10 +59,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       return(Generations.length);
     }
 
-    function ExtractGenerationIDByTokenID(uint256 _TokenID) private view returns (uint256) {
-      require(Generations.length >= 1, "Generations Empty!");
-      require(_TokenID >= 1, "Invalid Token ID!");
-      require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!");  
+    function ExtractGenerationIDByTokenID(uint256 _TokenID) private view returns (uint256) {  
       uint256 I = 0;
       uint256 GenerationID = 0;
       uint256 GenerationsArrayLength = Generations.length - 1;      
@@ -80,7 +81,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       return(Generations[_GenerationID - 1].Uri);
     }
 
-    function uri(uint256 _TokenID) override public view returns (string memory) {    
+    function uri(uint256 _TokenID) override public view TokenIDConditions(_TokenID) returns (string memory) {    
       string memory MainURI;
       if (FullyBuiltTokens[_TokenID]) {
         MainURI = string(abi.encodePacked(ExtractGenerationUri(ExtractGenerationIDByTokenID(_TokenID)), Strings.toString(_TokenID), ".json"));   
@@ -127,14 +128,14 @@ contract SpaceShipNFT is ERC1155, Ownable {
       }
     }
 
-    function Mint_Using_ETH(uint256 _TokenID) public payable MintConditions(_TokenID) {
+    function Mint_Using_ETH(uint256 _TokenID) public payable TokenIDConditions(_TokenID) MintConditions(_TokenID) {
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
       require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");  
       _mint(msg.sender, _TokenID, 1, "");
       SetOwnerAndIncrementSupply(_TokenID, msg.sender);
     }
 
-    function Mint_Using_DOGELON(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID) public payable MintConditions(_TokenID) {
+    function Mint_Using_DOGELON(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID) public payable TokenIDConditions(_TokenID) MintConditions(_TokenID) {
       IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
       _mint(msg.sender, _TokenID, 1, "");
       SetOwnerAndIncrementSupply(_TokenID, msg.sender);
