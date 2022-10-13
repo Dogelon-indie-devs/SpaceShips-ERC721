@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract SpaceShipNFT is ERC1155, Ownable {
     
-    address public Owner;
-    bool public ETHMint = false;
+    address private Owner;
+    bool private ETHMint = false;
 
     struct NewGeneration{
       uint256 ID;
