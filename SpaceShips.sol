@@ -104,13 +104,21 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       }   
     }
 
-    function mint(uint256 _TokenID, bool _ETHMint) public payable {
+    function mint(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID, bool _ETHMint) public payable {
       require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
       require(_TokenID >= 1, "Invalid Token ID!");
       require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!"); 
       require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
-      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");   
-      _mint(msg.sender, _TokenID, 1, "");
+      
+      if (_ETHMint) {
+        require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");  
+        _mint(msg.sender, _TokenID, 1, "");
+      } else {
+        bool SuccessTransfer = IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
+        require(SuccessTransfer, "Transfer Failed!");
+        _mint(msg.sender, _TokenID, 1, "");
+      }
+
       MintedTokens[_TokenID] = true;
       TokensOwners[_TokenID] = msg.sender;
       unchecked {
