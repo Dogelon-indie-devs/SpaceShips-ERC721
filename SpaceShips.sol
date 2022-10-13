@@ -107,12 +107,12 @@ contract SpaceShipNFT is ERC1155, Ownable {
       return(Generations[_GenerationID - 1].CurrentSupply);
     }
 
-    function Withdraw(address _TokenContract, uint256 _Amount, bool _ETHWithdraw) external onlyOwner {
-      if (_ETHWithdraw) {
-        payable(msg.sender).transfer(address(this).balance);  
-      } else {
-        IERC20(_TokenContract).transfer(msg.sender, _Amount);
-      }   
+    function WithdrawETH () external onlyOwner {
+      payable(msg.sender).transfer(address(this).balance);  
+    }
+
+    function WithdrawDOGELON (address _TokenContract, uint256 _Amount) external onlyOwner {
+      IERC20(_TokenContract).transfer(msg.sender, _Amount);
     }
 
     function SetETHMint (bool _State) public onlyOwner{
