@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract SpaceShipNFT is ERC1155, Ownable {
     
     address public Owner;
+    bool public ETHMint = false;
+
     struct NewGeneration{
       uint256 ID;
       string Uri;
@@ -28,6 +30,14 @@ contract SpaceShipNFT is ERC1155, Ownable {
       Owner = msg.sender;
     }
   
+    modifier MintConditions(uint256 _TokenID) {
+      require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
+      require(_TokenID >= 1, "Invalid Token ID!");
+      require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!"); 
+      require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
+      _;
+    }
+
     function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply, bool _Unlocked) public onlyOwner { 
       uint256 _CurrentSupply = 0;    
       Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _Price, _MaxSupply, _CurrentSupply, _Unlocked)); 
@@ -105,35 +115,29 @@ contract SpaceShipNFT is ERC1155, Ownable {
       }   
     }
 
-    function Mint_Using_ETH(uint256 _TokenID) private {
-      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");  
-      _mint(msg.sender, _TokenID, 1, "");
+    function SetETHMint (bool _State) public onlyOwner{
+      ETHMint = _State;
     }
 
-    function Mint_Using_DOGELON(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID) private {
-      bool SuccessTransfer = IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
-      require(SuccessTransfer, "Transfer Failed!");
-      _mint(msg.sender, _TokenID, 1, "");
-    }
-
-
-    function mint(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID, bool _ETHMint) public payable {
-      require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
-      require(_TokenID >= 1, "Invalid Token ID!");
-      require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!"); 
-      require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
-      
-      if (_ETHMint) {
-        Mint_Using_ETH(_TokenID); 
-        Mint_Using_DOGELON(_TokenContract, _TokenAmount, _TokenID);  
-      } else {
-        Mint_Using_DOGELON(_TokenContract, _TokenAmount, _TokenID);  
-      }
-
+    function SetOwnerAndIncrementSupply (uint256 _TokenID, address _Owner) private {
       MintedTokens[_TokenID] = true;
-      TokensOwners[_TokenID] = msg.sender;
+      TokensOwners[_TokenID] = _Owner;
       unchecked {
         Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].CurrentSupply += 1;    
       }
+    }
+
+    function Mint_Using_ETH(uint256 _TokenID) public payable MintConditions(_TokenID) {
+      require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
+      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");  
+      _mint(msg.sender, _TokenID, 1, "");
+      SetOwnerAndIncrementSupply(_TokenID, msg.sender);
+    }
+
+    function Mint_Using_DOGELON(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID) public payable MintConditions(_TokenID) {
+      bool SuccessTransfer = IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
+      require(SuccessTransfer, "Transfer Failed!");
+      _mint(msg.sender, _TokenID, 1, "");
+      SetOwnerAndIncrementSupply(_TokenID, msg.sender);
     }
 }
