@@ -28,7 +28,8 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       Owner = msg.sender;
     }
   
-    function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply, uint256 _CurrentSupply, bool _Unlocked) public onlyOwner { 
+    function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply, bool _Unlocked) public onlyOwner { 
+      uint256 _CurrentSupply = 0;    
       Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _Price, _MaxSupply, _CurrentSupply, _Unlocked)); 
      }  
 
@@ -96,12 +97,14 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
       return(Generations[_GenerationID - 1].CurrentSupply);
     }
 
-    function Withdraw(address _TokenContract, uint256 _Amount) external onlyOwner {
+    function Withdraw(address _TokenContract, uint256 _Amount, bool _ETHWithdraw) external onlyOwner {
       IERC20(_TokenContract).transfer(msg.sender, _Amount);
-      payable(msg.sender).transfer(address(this).balance);
+      if (_ETHWithdraw) {
+        payable(msg.sender).transfer(address(this).balance);  
+      }   
     }
 
-    function mint(uint256 _TokenID) public payable {
+    function mint(uint256 _TokenID, bool _ETHMint) public payable {
       require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
       require(_TokenID >= 1, "Invalid Token ID!");
       require(Generations[Generations.length - 1].MaxSupply >= _TokenID, "Invalid Token ID!"); 
