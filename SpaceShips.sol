@@ -98,9 +98,10 @@ contract DogelonSpaceShipNFT is ERC1155, Ownable {
     }
 
     function Withdraw(address _TokenContract, uint256 _Amount, bool _ETHWithdraw) external onlyOwner {
-      IERC20(_TokenContract).transfer(msg.sender, _Amount);
       if (_ETHWithdraw) {
         payable(msg.sender).transfer(address(this).balance);  
+      } else {
+        IERC20(_TokenContract).transfer(msg.sender, _Amount);
       }   
     }
 
