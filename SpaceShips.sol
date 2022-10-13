@@ -22,7 +22,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }  
     NewGeneration[] private Generations; 
 
-    mapping (uint256 => bool) private FullyBuiltedTokens;
+    mapping (uint256 => bool) private FullyBuiltTokens;
     mapping (uint256 => bool) private MintedTokens;
     mapping (uint256 => address) private TokensOwners;
 
@@ -82,7 +82,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function uri(uint256 _TokenID) override public view returns (string memory) {    
       string memory MainURI;
-      if (FullyBuiltedTokens[_TokenID]) {
+      if (FullyBuiltTokens[_TokenID]) {
         MainURI = string(abi.encodePacked(ExtractGenerationUri(ExtractGenerationIDByTokenID(_TokenID)), Strings.toString(_TokenID), ".json"));   
       } else {
         MainURI = Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].BluePrintUri;   
@@ -98,9 +98,9 @@ contract SpaceShipNFT is ERC1155, Ownable {
       Generations[_GenerationID - 1].BluePrintUri = _NewURI; 
     }
 
-    function SetTokenAsFullyBuilted(uint256 _TokenID) public {
-      require(TokensOwners[_TokenID] == msg.sender || msg.sender == Owner, "Only Owner Can Fully Built Tokens!");
-      FullyBuiltedTokens[_TokenID] = true;
+    function SetTokenAsFullyBuilt(uint256 _TokenID) public {
+      require(TokensOwners[_TokenID] == msg.sender || msg.sender == Owner, "Only the specific ship token holder can fully build tokens!");
+      FullyBuiltTokens[_TokenID] = true;
     }
 
     function GetGenerationCurrentSupply(uint256 _GenerationID) public view onlyOwner returns (uint256) {
