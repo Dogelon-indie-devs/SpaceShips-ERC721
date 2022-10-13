@@ -105,6 +105,18 @@ contract SpaceShipNFT is ERC1155, Ownable {
       }   
     }
 
+    function Mint_Using_ETH(uint256 _TokenID) private {
+      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");  
+      _mint(msg.sender, _TokenID, 1, "");
+    }
+
+    function Mint_Using_DOGELON(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID) private {
+      bool SuccessTransfer = IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
+      require(SuccessTransfer, "Transfer Failed!");
+      _mint(msg.sender, _TokenID, 1, "");
+    }
+
+
     function mint(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID, bool _ETHMint) public payable {
       require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
       require(_TokenID >= 1, "Invalid Token ID!");
@@ -112,12 +124,10 @@ contract SpaceShipNFT is ERC1155, Ownable {
       require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
       
       if (_ETHMint) {
-        require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");  
-        _mint(msg.sender, _TokenID, 1, "");
+        Mint_Using_ETH(_TokenID); 
+        Mint_Using_DOGELON(_TokenContract, _TokenAmount, _TokenID);  
       } else {
-        bool SuccessTransfer = IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
-        require(SuccessTransfer, "Transfer Failed!");
-        _mint(msg.sender, _TokenID, 1, "");
+        Mint_Using_DOGELON(_TokenContract, _TokenAmount, _TokenID);  
       }
 
       MintedTokens[_TokenID] = true;
