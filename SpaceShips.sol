@@ -135,8 +135,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function Mint_Using_DOGELON(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID) public payable MintConditions(_TokenID) {
-      bool SuccessTransfer = IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
-      require(SuccessTransfer, "Transfer Failed!");
+      IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
       _mint(msg.sender, _TokenID, 1, "");
       SetOwnerAndIncrementSupply(_TokenID, msg.sender);
     }
