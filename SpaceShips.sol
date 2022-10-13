@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract DogelonSpaceShipNFT is ERC1155, Ownable {
+contract SpaceShipNFT is ERC1155, Ownable {
     
     address public Owner;
     struct NewGeneration{
