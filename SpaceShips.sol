@@ -61,7 +61,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function ExtractGenerationIDByTokenID(uint256 _TokenID) private view returns (uint256) {  
       uint256 I = 0;
-      uint256 GenerationID = 0;
+      uint256 GenerationID;
       uint256 GenerationsArrayLength = Generations.length - 1;      
       while (I <= GenerationsArrayLength) {       
         if (Generations[I].MaxSupply >= _TokenID) {
