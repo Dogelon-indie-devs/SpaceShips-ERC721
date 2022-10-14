@@ -29,13 +29,9 @@ contract SpaceShipNFT is ERC1155, Ownable {
     constructor() ERC1155("") {
       Owner = msg.sender;
     }
-    
-    function owner() override public view virtual returns (address) {
-        return Owner;
-    }
    
     function TransferContractOwnerShip (address NewOwner) public onlyOwner{
-      Owner = NewOwner;
+      transferOwnership(NewOwner);
     }
 
     modifier MintConditions(uint256 _TokenID) {
