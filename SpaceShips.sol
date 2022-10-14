@@ -105,6 +105,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function SetTokenAsFullyBuilt(uint256 _TokenID) public {
       require(TokensOwners[_TokenID] == msg.sender || msg.sender == Owner, "Only the specific ship token holder can fully build tokens!");
+      require(MintedTokens[_TokenID], "Token Not Minted Yet!");
       FullyBuiltTokens[_TokenID] = true;
     }
 
@@ -113,7 +114,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function IsShipFullyBuilt (uint256 _TokenID) public view returns (bool) {
-      require(TokensOwners[_TokenID] == msg.sender || msg.sender == Owner, "Only the specific ship token holder can fully build tokens!");
+      require(TokensOwners[_TokenID] == msg.sender || msg.sender == Owner, "Only the specific ship token holder can check if ship is fully built!");
       return(FullyBuiltTokens[_TokenID]);
     }
 
