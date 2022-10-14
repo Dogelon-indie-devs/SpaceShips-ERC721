@@ -30,7 +30,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       Owner = msg.sender;
     }
    
-    function TransferContractOwnerShip (address NewOwner) public onlyOwner{
+    function TransferContractOwnerShip (address NewOwner) public onlyOwner {
       transferOwnership(NewOwner);
     }
 
@@ -110,6 +110,11 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function GetGenerationCurrentSupply(uint256 _GenerationID) public view onlyOwner returns (uint256) {
       return(Generations[_GenerationID - 1].CurrentSupply);
+    }
+
+    function IsShipFullyBuilt (uint256 _TokenID) public view returns (bool) {
+      require(TokensOwners[_TokenID] == msg.sender || msg.sender == Owner, "Only the specific ship token holder can fully build tokens!");
+      return(FullyBuiltTokens[_TokenID]);
     }
 
     function WithdrawETH () external onlyOwner {
