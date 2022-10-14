@@ -10,7 +10,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     
     address private Owner;
     bool private ETHMint = false;
-    uint private OneDayInBlockNumber = 7150;
+    uint private OneDayInBlockHeight = 7150;
 
     struct NewGeneration{
       uint256 ID;
@@ -27,7 +27,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     mapping (uint256 => bool) private FullyBuiltTokens;
     mapping (uint256 => bool) private MintedTokens;
     mapping (uint256 => address) private TokensOwners;
-    mapping (address => uint) private TokensOwnersBlockNumbers;
+    mapping (address => uint) private TokensOwnersBlockHeight;
 
     constructor() ERC1155("") {
       Owner = msg.sender;
@@ -51,8 +51,8 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply,uint _BuildDays, bool _Unlocked) public onlyOwner { 
       uint256 _CurrentSupply = 0;   
-      uint _BuildDaysInBlockNumber = _BuildDays * OneDayInBlockNumber;
-      Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _Price, _MaxSupply, _CurrentSupply, _BuildDaysInBlockNumber, _Unlocked)); 
+      uint _BuildDaysInBlockHeight = _BuildDays * OneDayInBlockHeight;
+      Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _Price, _MaxSupply, _CurrentSupply, _BuildDaysInBlockHeight, _Unlocked)); 
      }  
 
     function UnlockGeneration(uint256 _GenerationID) public onlyOwner {
@@ -110,7 +110,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     function SetTokenAsFullyBuiltByHolder(uint256 _TokenID) public {
       require(TokensOwners[_TokenID] == msg.sender, "Only the specific ship token holder can fully build tokens!");
       require(MintedTokens[_TokenID], "Token Not Minted Yet!");    
-      require(TokensOwnersBlockNumbers[msg.sender] < block.number, "This Ship Needs More Time To Be Built");
+      require(TokensOwnersBlockHeight[msg.sender] < block.number, "This Ship Needs More Time To Be Built");
       FullyBuiltTokens[_TokenID] = true;
     }
 
@@ -139,8 +139,8 @@ contract SpaceShipNFT is ERC1155, Ownable {
       ETHMint = _State;
     }
 
-    function SetOneDayInBlockNumber (uint _DayInBlockNumber) public onlyOwner {
-      OneDayInBlockNumber = _DayInBlockNumber;
+    function SetOneDayInBlockHeight (uint _DayInBlockHeight) public onlyOwner {
+      OneDayInBlockHeight = _DayInBlockHeight;
     }
 
     function SetOwnerAndIncrementSupply (uint256 _TokenID, address _Owner) private {
@@ -149,7 +149,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       unchecked {
         Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].CurrentSupply += 1;    
       }
-      TokensOwnersBlockNumbers[_Owner] = block.number + Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].BuildDays; 
+      TokensOwnersBlockHeight[_Owner] = block.number + Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].BuildDays; 
     }
 
     function Mint_Using_ETH(uint256 _TokenID) public payable TokenIDConditions(_TokenID) MintConditions(_TokenID) {
