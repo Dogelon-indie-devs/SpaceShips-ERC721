@@ -159,7 +159,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function Mint_Using_ETH(uint256 _TokenID) public payable TokenIDConditions(_TokenID) MintConditions(_TokenID) {
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
-      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].Price, "Not Enough Funds!");  
+      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID)].Price, "Not Enough Funds!");  
       _mint(msg.sender, _TokenID, 1, "");
       SetOwnerAndIncrementSupply(_TokenID, msg.sender);
     }
