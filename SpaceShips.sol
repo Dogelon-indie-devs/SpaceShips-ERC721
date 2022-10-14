@@ -29,8 +29,13 @@ contract SpaceShipNFT is ERC1155, Ownable {
     mapping (uint256 => address) private TokensOwners;
     mapping (address => uint) private TokensOwnersBlockHeight;
 
+    function InitializeGenerations() private {
+      Generations.push(NewGeneration(0, "", "", 0, 0, 0, 0, false));  
+    }
+
     constructor() ERC1155("") {
       Owner = msg.sender;
+      InitializeGenerations();
     }
    
     function TransferContractOwnerShip (address NewOwner) public onlyOwner {
@@ -56,11 +61,11 @@ contract SpaceShipNFT is ERC1155, Ownable {
      }  
 
     function UnlockGeneration(uint256 _GenerationID) public onlyOwner {
-      Generations[_GenerationID - 1].Unlocked = true;
+      Generations[_GenerationID].Unlocked = true;
     }
 
     function LockGeneration(uint256 _GenerationID) public onlyOwner {
-      Generations[_GenerationID - 1].Unlocked = false;
+      Generations[_GenerationID].Unlocked = false;
     }
 
     function GenerationsCount() public view onlyOwner returns (uint256) {
@@ -68,7 +73,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function ExtractGenerationIDByTokenID(uint256 _TokenID) private view returns (uint256) {  
-      uint256 I = 0;
+      uint256 I = 1;
       uint256 GenerationID;
       uint256 GenerationsArrayLength = Generations.length - 1;      
       while (I <= GenerationsArrayLength) {       
@@ -82,11 +87,11 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function IsGenerationUnlocked(uint256 _GenerationID) private view returns (bool) {
-      return(Generations[_GenerationID - 1].Unlocked);
+      return(Generations[_GenerationID].Unlocked);
     }
 
     function ExtractGenerationUri(uint256 _GenerationID) private view returns (string memory) {
-      return(Generations[_GenerationID - 1].Uri);
+      return(Generations[_GenerationID].Uri);
     }
 
     function uri(uint256 _TokenID) override public view TokenIDConditions(_TokenID) returns (string memory) {    
@@ -94,17 +99,17 @@ contract SpaceShipNFT is ERC1155, Ownable {
       if (FullyBuiltTokens[_TokenID]) {
         MainURI = string(abi.encodePacked(ExtractGenerationUri(ExtractGenerationIDByTokenID(_TokenID)), Strings.toString(_TokenID), ".json"));   
       } else {
-        MainURI = Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].BluePrintUri;   
+        MainURI = Generations[ExtractGenerationIDByTokenID(_TokenID)].BluePrintUri;   
       }     
       return(MainURI);             
     }
    
     function ChangeGenerationURI(uint256 _GenerationID, string memory _NewURI) public onlyOwner {
-      Generations[_GenerationID - 1].Uri = _NewURI; 
+      Generations[_GenerationID].Uri = _NewURI; 
     }
 
     function ChangeGenerationBluePrintURI(uint256 _GenerationID, string memory _NewURI) public onlyOwner {
-      Generations[_GenerationID - 1].BluePrintUri = _NewURI; 
+      Generations[_GenerationID].BluePrintUri = _NewURI; 
     }
 
     function SetTokenAsFullyBuiltByHolder(uint256 _TokenID) public {
@@ -120,7 +125,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function GetGenerationCurrentSupply(uint256 _GenerationID) public view onlyOwner returns (uint256) {
-      return(Generations[_GenerationID - 1].CurrentSupply);
+      return(Generations[_GenerationID].CurrentSupply);
     }
 
     function IsShipFullyBuilt (uint256 _TokenID) public view returns (bool) {
@@ -128,11 +133,11 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function WithdrawETH () external onlyOwner {
-      payable(msg.sender).transfer(address(this).balance);  
+      payable(Owner).transfer(address(this).balance);  
     }
 
     function WithdrawDOGELON (address _TokenContract, uint256 _Amount) external onlyOwner {
-      IERC20(_TokenContract).transfer(msg.sender, _Amount);
+      IERC20(_TokenContract).transfer(Owner, _Amount);
     }
 
     function SetETHMint (bool _State) public onlyOwner {
@@ -147,9 +152,9 @@ contract SpaceShipNFT is ERC1155, Ownable {
       MintedTokens[_TokenID] = true;
       TokensOwners[_TokenID] = _Owner;
       unchecked {
-        Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].CurrentSupply += 1;    
+        Generations[ExtractGenerationIDByTokenID(_TokenID)].CurrentSupply += 1;    
       }
-      TokensOwnersBlockHeight[_Owner] = block.number + Generations[ExtractGenerationIDByTokenID(_TokenID) - 1].BuildDays; 
+      TokensOwnersBlockHeight[_Owner] = block.number + Generations[ExtractGenerationIDByTokenID(_TokenID)].BuildDays; 
     }
 
     function Mint_Using_ETH(uint256 _TokenID) public payable TokenIDConditions(_TokenID) MintConditions(_TokenID) {
