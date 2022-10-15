@@ -13,6 +13,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     bool private ETHMint = false;
     uint private OneDayInBlockHeight = 7150;
     uint256 private DogelonAmountToTransfer = 40000000;
+    bool LockMinting = false;
 
     struct NewGeneration{
       uint256 ID;
@@ -45,6 +46,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     modifier MintConditions(uint256 _GenerationID) {
+      require(!LockMinting, "Minting Is Locked!"); 
       require(IsGenerationUnlocked(_GenerationID), "This Generation Is Not Unlocked Yet!");
       require(Generations[_GenerationID].CurrentSupply < Generations[_GenerationID].MaxSupply, "Max Supply Exceeded!");
       _;
@@ -157,6 +159,10 @@ contract SpaceShipNFT is ERC1155, Ownable {
       MintedTokens[_TokenID] = true;
       TokensOwners[_TokenID] = _Owner;
       WillBecomeAvailableAtHeight[_Owner] = block.number + Generations[_GenerationID].BuildDays; 
+    }
+
+    function SetMintingLock(bool _State) public onlyOwner {
+      LockMinting = _State;
     }
 
     function Mint_Using_ETH(uint256 _GenerationID) public payable MintConditions(_GenerationID) {   
