@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract SpaceShipNFT is ERC1155, Ownable {
 
     address private Owner;                
-    address constant private _TokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
+    address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
     bool private ETHMint = false;
     uint private OneDayInBlockHeight = 7150;
     uint256 private DogelonAmountToTransfer = 40000000;
@@ -138,7 +138,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function WithdrawDOGELON (uint256 _Amount) external onlyOwner {
-      IERC20(_TokenContract).transfer(Owner, _Amount);
+      IERC20(_DogelonTokenContract).transfer(Owner, _Amount);
     }
 
     function SetETHMint (bool _State) public onlyOwner {
@@ -171,7 +171,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function Mint_Using_DOGELON(uint256 _GenerationID) public payable MintConditions(_GenerationID) {
-      IERC20(_TokenContract).transferFrom(msg.sender, Owner, DogelonAmountToTransfer);      
+      IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, DogelonAmountToTransfer);      
       unchecked {
         Generations[_GenerationID].CurrentSupply += 1;          
       }     
