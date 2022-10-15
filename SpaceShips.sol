@@ -15,7 +15,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     bool private LockMinting = false;
 
     struct NewGeneration{
-      uint256 ID;
+      uint8 ID;
       string Uri;
       string BluePrintUri;
       uint256 ETHPrice;
@@ -26,7 +26,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       bool Unlocked;  
     }  
     NewGeneration[] private Generations; 
-
+   
     mapping (uint256 => bool) private FullyBuiltTokens;
     mapping (uint256 => bool) private MintedTokens;
     mapping (uint256 => address) private TokensOwners;
@@ -45,7 +45,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       transferOwnership(NewOwner);
     }
 
-    modifier MintConditions(uint256 _GenerationID) {
+    modifier MintConditions(uint8 _GenerationID) {
       require(!LockMinting, "Minting Is Locked!"); 
       require(IsGenerationUnlocked(_GenerationID), "This Generation Is Not Unlocked Yet!");
       require(Generations[_GenerationID].CurrentSupply < Generations[_GenerationID].MaxSupply, "Max Supply Exceeded!");
@@ -58,7 +58,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       _;
     }
 
-    function AddNewGeneration(uint256 _ID, 
+    function AddNewGeneration(uint8 _ID, 
                               string memory _Uri, 
                               string memory _BluePrintUri, 
                               uint256 _ETHPrice, 
@@ -71,11 +71,11 @@ contract SpaceShipNFT is ERC1155, Ownable {
       Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _ETHPrice, _DOGELONPrice, _MaxSupply, _CurrentSupply, _BuildDaysInBlockHeight, _Unlocked)); 
      }  
 
-    function UnlockGeneration(uint256 _GenerationID) public onlyOwner {
+    function UnlockGeneration(uint8 _GenerationID) public onlyOwner {
       Generations[_GenerationID].Unlocked = true;
     }
 
-    function LockGeneration(uint256 _GenerationID) public onlyOwner {
+    function LockGeneration(uint8 _GenerationID) public onlyOwner {
       Generations[_GenerationID].Unlocked = false;
     }
 
@@ -83,9 +83,9 @@ contract SpaceShipNFT is ERC1155, Ownable {
       return(Generations.length);
     }
 
-    function ExtractGenerationIDByTokenID(uint256 _TokenID) private view returns (uint256) {  
-      uint256 I = 1;
-      uint256 GenerationID;
+    function ExtractGenerationIDByTokenID(uint256 _TokenID) private view returns (uint8) {  
+      uint8 I = 1;
+      uint8 GenerationID;
       uint256 GenerationsArrayLength = Generations.length - 1;      
       while (I <= GenerationsArrayLength) {       
         if (Generations[I].MaxSupply >= _TokenID) {
@@ -97,11 +97,11 @@ contract SpaceShipNFT is ERC1155, Ownable {
       return(GenerationID); 
     }
 
-    function IsGenerationUnlocked(uint256 _GenerationID) private view returns (bool) {
+    function IsGenerationUnlocked(uint8 _GenerationID) private view returns (bool) {
       return(Generations[_GenerationID].Unlocked);
     }
 
-    function ExtractGenerationUri(uint256 _GenerationID) private view returns (string memory) {
+    function ExtractGenerationUri(uint8 _GenerationID) private view returns (string memory) {
       return(Generations[_GenerationID].Uri);
     }
 
@@ -115,11 +115,11 @@ contract SpaceShipNFT is ERC1155, Ownable {
       return(MainURI);             
     }
    
-    function ChangeGenerationURI(uint256 _GenerationID, string memory _NewURI) public onlyOwner {
+    function ChangeGenerationURI(uint8 _GenerationID, string memory _NewURI) public onlyOwner {
       Generations[_GenerationID].Uri = _NewURI; 
     }
 
-    function ChangeGenerationBluePrintURI(uint256 _GenerationID, string memory _NewURI) public onlyOwner {
+    function ChangeGenerationBluePrintURI(uint8 _GenerationID, string memory _NewURI) public onlyOwner {
       Generations[_GenerationID].BluePrintUri = _NewURI; 
     }
 
@@ -135,7 +135,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       FullyBuiltTokens[_TokenID] = true;
     }
 
-    function GetGenerationRemainingSupply(uint256 _GenerationID) public view onlyOwner returns (uint256) {
+    function GetGenerationRemainingSupply(uint8 _GenerationID) public view onlyOwner returns (uint256) {
       return(Generations[_GenerationID].MaxSupply - Generations[_GenerationID].CurrentSupply);
     }
 
@@ -159,7 +159,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       OneDayInBlockHeight = _DayInBlockHeight;
     } 
 
-    function SetTokenOwner (uint256 _TokenID, address _Owner, uint256 _GenerationID) private {
+    function SetTokenOwner (uint256 _TokenID, address _Owner, uint8 _GenerationID) private {
       MintedTokens[_TokenID] = true;
       TokensOwners[_TokenID] = _Owner;
       WillBecomeAvailableAtHeight[_Owner] = block.number + Generations[_GenerationID].BuildDays; 
@@ -169,7 +169,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       LockMinting = _State;
     }
 
-    function Mint_Using_ETH(uint256 _GenerationID) public payable MintConditions(_GenerationID) {   
+    function Mint_Using_ETH(uint8 _GenerationID) public payable MintConditions(_GenerationID) {   
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
       require(msg.value >= Generations[_GenerationID].ETHPrice, "Not Enough Funds!");        
       unchecked {
@@ -180,7 +180,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       SetTokenOwner(_TokenID, msg.sender, _GenerationID);
     }
 
-    function Mint_Using_DOGELON(uint256 _GenerationID) public payable MintConditions(_GenerationID) {
+    function Mint_Using_DOGELON(uint8 _GenerationID) public payable MintConditions(_GenerationID) {
       IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Generations[_GenerationID].DOGELONPrice);      
       unchecked {
         Generations[_GenerationID].CurrentSupply += 1;          
