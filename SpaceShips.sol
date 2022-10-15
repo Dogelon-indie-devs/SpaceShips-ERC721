@@ -12,14 +12,14 @@ contract SpaceShipNFT is ERC1155, Ownable {
     address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
     bool private ETHMint = false;
     uint private OneDayInBlockHeight = 7150;
-    uint256 private DogelonAmountToTransfer = 40000000;
-    bool LockMinting = false;
+    bool private LockMinting = false;
 
     struct NewGeneration{
       uint256 ID;
       string Uri;
       string BluePrintUri;
-      uint256 Price;
+      uint256 ETHPrice;
+      uint256 DOGELONPrice;
       uint256 MaxSupply;
       uint256 CurrentSupply;
       uint BuildDays;
@@ -33,7 +33,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     mapping (address => uint) private WillBecomeAvailableAtHeight;
 
     function InitializeGenerations() private {
-      Generations.push(NewGeneration(0, "", "", 0, 0, 0, 0, false));  
+      Generations.push(NewGeneration(0, "", "", 0, 0, 0, 0, 0, false));  
     }
 
     constructor() ERC1155("") {
@@ -58,9 +58,17 @@ contract SpaceShipNFT is ERC1155, Ownable {
       _;
     }
 
-    function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply, uint256 _CurrentSupply, uint _BuildDays, bool _Unlocked) public onlyOwner { 
+    function AddNewGeneration(uint256 _ID, 
+                              string memory _Uri, 
+                              string memory _BluePrintUri, 
+                              uint256 _ETHPrice, 
+                              uint256 _DOGELONPrice, 
+                              uint256 _MaxSupply, 
+                              uint256 _CurrentSupply, 
+                              uint _BuildDays, 
+                              bool _Unlocked) public onlyOwner { 
       uint _BuildDaysInBlockHeight = _BuildDays * OneDayInBlockHeight;
-      Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _Price, _MaxSupply, _CurrentSupply, _BuildDaysInBlockHeight, _Unlocked)); 
+      Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _ETHPrice, _DOGELONPrice, _MaxSupply, _CurrentSupply, _BuildDaysInBlockHeight, _Unlocked)); 
      }  
 
     function UnlockGeneration(uint256 _GenerationID) public onlyOwner {
@@ -150,10 +158,6 @@ contract SpaceShipNFT is ERC1155, Ownable {
     function SetOneDayInBlockHeight (uint _DayInBlockHeight) public onlyOwner {
       OneDayInBlockHeight = _DayInBlockHeight;
     } 
-    
-    function SetDogelonAmountToTransfer (uint256 _DogelonToTransfer) public onlyOwner {
-      DogelonAmountToTransfer = _DogelonToTransfer;
-    }
 
     function SetTokenOwner (uint256 _TokenID, address _Owner, uint256 _GenerationID) private {
       MintedTokens[_TokenID] = true;
@@ -167,7 +171,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function Mint_Using_ETH(uint256 _GenerationID) public payable MintConditions(_GenerationID) {   
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
-      require(msg.value >= Generations[_GenerationID].Price, "Not Enough Funds!");        
+      require(msg.value >= Generations[_GenerationID].ETHPrice, "Not Enough Funds!");        
       unchecked {
         Generations[_GenerationID].CurrentSupply += 1;          
       }     
@@ -177,7 +181,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     }
 
     function Mint_Using_DOGELON(uint256 _GenerationID) public payable MintConditions(_GenerationID) {
-      IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, DogelonAmountToTransfer);      
+      IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Generations[_GenerationID].DOGELONPrice);      
       unchecked {
         Generations[_GenerationID].CurrentSupply += 1;          
       }     
