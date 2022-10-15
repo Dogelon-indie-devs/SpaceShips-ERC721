@@ -29,7 +29,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     mapping (uint256 => bool) private FullyBuiltTokens;
     mapping (uint256 => bool) private MintedTokens;
     mapping (uint256 => address) private TokensOwners;
-    mapping (address => uint) private TokensOwnersBlockHeight;
+    mapping (address => uint) private WillBecomeAvailableAtHeight;
 
     function InitializeGenerations() private {
       Generations.push(NewGeneration(0, "", "", 0, 0, 0, 0, false));  
@@ -116,7 +116,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     function SetTokenAsFullyBuiltByHolder(uint256 _TokenID) public {
       require(TokensOwners[_TokenID] == msg.sender, "Only the specific ship token holder can fully build tokens!");
       require(MintedTokens[_TokenID], "Token Not Minted Yet!");    
-      require(TokensOwnersBlockHeight[msg.sender] < block.number, "This Ship Needs More Time To Be Built");
+      require(WillBecomeAvailableAtHeight[msg.sender] < block.number, "This Ship Needs More Time To Be Built");
       FullyBuiltTokens[_TokenID] = true;
     }
 
@@ -156,7 +156,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
     function SetTokenOwner (uint256 _TokenID, address _Owner, uint256 _GenerationID) private {
       MintedTokens[_TokenID] = true;
       TokensOwners[_TokenID] = _Owner;
-      TokensOwnersBlockHeight[_Owner] = block.number + Generations[_GenerationID].BuildDays; 
+      WillBecomeAvailableAtHeight[_Owner] = block.number + Generations[_GenerationID].BuildDays; 
     }
 
     function Mint_Using_ETH(uint256 _GenerationID) public payable MintConditions(_GenerationID) {   
