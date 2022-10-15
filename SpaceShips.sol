@@ -153,10 +153,10 @@ contract SpaceShipNFT is ERC1155, Ownable {
       DogelonAmountToTransfer = _DogelonToTransfer;
     }
 
-    function SetTokenOwner (uint256 _TokenID, address _Owner) private {
+    function SetTokenOwner (uint256 _TokenID, address _Owner, uint256 _GenerationID) private {
       MintedTokens[_TokenID] = true;
       TokensOwners[_TokenID] = _Owner;
-      TokensOwnersBlockHeight[_Owner] = block.number + Generations[ExtractGenerationIDByTokenID(_TokenID)].BuildDays; 
+      TokensOwnersBlockHeight[_Owner] = block.number + Generations[_GenerationID].BuildDays; 
     }
 
     function Mint_Using_ETH(uint256 _GenerationID) public payable MintConditions(_GenerationID) {   
@@ -167,7 +167,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       }     
       uint256 _TokenID = Generations[_GenerationID].CurrentSupply; 
       _mint(msg.sender, _TokenID, 1, "");
-      SetTokenOwner(_TokenID, msg.sender);
+      SetTokenOwner(_TokenID, msg.sender, _GenerationID);
     }
 
     function Mint_Using_DOGELON(uint256 _GenerationID) public payable MintConditions(_GenerationID) {
@@ -177,6 +177,6 @@ contract SpaceShipNFT is ERC1155, Ownable {
       }     
       uint256 _TokenID = Generations[_GenerationID].CurrentSupply; 
       _mint(msg.sender, _TokenID, 1, "");
-      SetTokenOwner(_TokenID, msg.sender);
+      SetTokenOwner(_TokenID, msg.sender, _GenerationID);
     }
 }
