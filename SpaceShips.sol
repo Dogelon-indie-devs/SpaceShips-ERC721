@@ -7,10 +7,12 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract SpaceShipNFT is ERC1155, Ownable {
-    
-    address private Owner;
+
+    address private Owner;                
+    address constant private _TokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
     bool private ETHMint = false;
     uint private OneDayInBlockHeight = 7150;
+    uint256 private DogelonAmountToTransfer = 40000000;
 
     struct NewGeneration{
       uint256 ID;
@@ -42,9 +44,9 @@ contract SpaceShipNFT is ERC1155, Ownable {
       transferOwnership(NewOwner);
     }
 
-    modifier MintConditions(uint256 _TokenID) {
-      require(IsGenerationUnlocked(ExtractGenerationIDByTokenID(_TokenID)), "This Generation Is Not Unlocked Yet!");
-      require(MintedTokens[_TokenID] == false, "Token Already Minted!"); 
+    modifier MintConditions(uint256 _GenerationID) {
+      require(IsGenerationUnlocked(_GenerationID), "This Generation Is Not Unlocked Yet!");
+      require(Generations[_GenerationID].CurrentSupply < Generations[_GenerationID].MaxSupply, "Max Supply Exceeded!");
       _;
     }
 
@@ -54,8 +56,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       _;
     }
 
-    function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply,uint _BuildDays, bool _Unlocked) public onlyOwner { 
-      uint256 _CurrentSupply = 0;   
+    function AddNewGeneration(uint256 _ID, string memory _Uri, string memory _BluePrintUri, uint256 _Price, uint256 _MaxSupply, uint256 _CurrentSupply, uint _BuildDays, bool _Unlocked) public onlyOwner { 
       uint _BuildDaysInBlockHeight = _BuildDays * OneDayInBlockHeight;
       Generations.push(NewGeneration(_ID, _Uri, _BluePrintUri, _Price, _MaxSupply, _CurrentSupply, _BuildDaysInBlockHeight, _Unlocked)); 
      }  
@@ -124,8 +125,8 @@ contract SpaceShipNFT is ERC1155, Ownable {
       FullyBuiltTokens[_TokenID] = true;
     }
 
-    function GetGenerationCurrentSupply(uint256 _GenerationID) public view onlyOwner returns (uint256) {
-      return(Generations[_GenerationID].CurrentSupply);
+    function GetGenerationRemainingSupply(uint256 _GenerationID) public view onlyOwner returns (uint256) {
+      return(Generations[_GenerationID].MaxSupply - Generations[_GenerationID].CurrentSupply);
     }
 
     function IsShipFullyBuilt (uint256 _TokenID) public view returns (bool) {
@@ -136,7 +137,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       payable(Owner).transfer(address(this).balance);  
     }
 
-    function WithdrawDOGELON (address _TokenContract, uint256 _Amount) external onlyOwner {
+    function WithdrawDOGELON (uint256 _Amount) external onlyOwner {
       IERC20(_TokenContract).transfer(Owner, _Amount);
     }
 
@@ -146,27 +147,36 @@ contract SpaceShipNFT is ERC1155, Ownable {
 
     function SetOneDayInBlockHeight (uint _DayInBlockHeight) public onlyOwner {
       OneDayInBlockHeight = _DayInBlockHeight;
+    } 
+    
+    function SetDogelonAmountToTransfer (uint _DogelonToTransfer) public onlyOwner {
+      DogelonAmountToTransfer = _DogelonToTransfer;
     }
 
-    function SetOwnerAndIncrementSupply (uint256 _TokenID, address _Owner) private {
+    function SetTokenOwner (uint256 _TokenID, address _Owner) private {
       MintedTokens[_TokenID] = true;
       TokensOwners[_TokenID] = _Owner;
-      unchecked {
-        Generations[ExtractGenerationIDByTokenID(_TokenID)].CurrentSupply += 1;    
-      }
       TokensOwnersBlockHeight[_Owner] = block.number + Generations[ExtractGenerationIDByTokenID(_TokenID)].BuildDays; 
     }
 
-    function Mint_Using_ETH(uint256 _TokenID) public payable TokenIDConditions(_TokenID) MintConditions(_TokenID) {
+    function Mint_Using_ETH(uint256 _GenerationID) public payable MintConditions(_GenerationID) {   
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
-      require(msg.value >= Generations[ExtractGenerationIDByTokenID(_TokenID)].Price, "Not Enough Funds!");  
+      require(msg.value >= Generations[_GenerationID].Price, "Not Enough Funds!");        
+      unchecked {
+        Generations[_GenerationID].CurrentSupply += 1;          
+      }     
+      uint256 _TokenID = Generations[_GenerationID].CurrentSupply; 
       _mint(msg.sender, _TokenID, 1, "");
-      SetOwnerAndIncrementSupply(_TokenID, msg.sender);
+      SetTokenOwner(_TokenID, msg.sender);
     }
 
-    function Mint_Using_DOGELON(address _TokenContract, uint256 _TokenAmount, uint256 _TokenID) public payable TokenIDConditions(_TokenID) MintConditions(_TokenID) {
-      IERC20(_TokenContract).transferFrom(msg.sender, Owner, _TokenAmount);
+    function Mint_Using_DOGELON(uint256 _GenerationID) public payable MintConditions(_GenerationID) {
+      IERC20(_TokenContract).transferFrom(msg.sender, Owner, DogelonAmountToTransfer);      
+      unchecked {
+        Generations[_GenerationID].CurrentSupply += 1;          
+      }     
+      uint256 _TokenID = Generations[_GenerationID].CurrentSupply; 
       _mint(msg.sender, _TokenID, 1, "");
-      SetOwnerAndIncrementSupply(_TokenID, msg.sender);
+      SetTokenOwner(_TokenID, msg.sender);
     }
 }
