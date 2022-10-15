@@ -149,7 +149,7 @@ contract SpaceShipNFT is ERC1155, Ownable {
       OneDayInBlockHeight = _DayInBlockHeight;
     } 
     
-    function SetDogelonAmountToTransfer (uint _DogelonToTransfer) public onlyOwner {
+    function SetDogelonAmountToTransfer (uint256 _DogelonToTransfer) public onlyOwner {
       DogelonAmountToTransfer = _DogelonToTransfer;
     }
 
