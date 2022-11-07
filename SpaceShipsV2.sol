@@ -4,9 +4,11 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract SpaceShipsNFTs is ERC1155, Ownable {
   
+  address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
   string private _BaseURI = "";
   string private _BluePrintURI = "";
   address private Owner; 
@@ -58,4 +60,12 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
       _BaseURI = _NewURI;
     }
     
+    function WithdrawETH () external onlyOwner {
+      payable(Owner).transfer(address(this).balance);  
+    }
+
+    function WithdrawDOGELON (uint256 _Amount) external onlyOwner {
+      IERC20(_DogelonTokenContract).transfer(Owner, _Amount);
+    }
+
 }
