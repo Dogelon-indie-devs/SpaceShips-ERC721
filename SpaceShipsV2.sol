@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SpaceShipsNFTs is ERC1155, Ownable {
-
+  
   string private _BaseURI = "";
   string private _BluePrintURI = "";
   address private Owner; 
@@ -23,7 +23,12 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
     NewClass[] private Classes; 
 
     function InitializeClasses() private {
-      Classes.push(NewClass(0, 0, 0, 0, 0, false));  
+       NewClass memory MyNewClass;
+       MyNewClass.ETHPrice = 0;
+       MyNewClass.DOGELONPrice = 0;
+       MyNewClass.MaxSupply = 0;
+       MyNewClass.BuildDaysInBlockHeight = 0;      
+       Classes.push(MyNewClass);
     }
 
     constructor() ERC1155("") {
