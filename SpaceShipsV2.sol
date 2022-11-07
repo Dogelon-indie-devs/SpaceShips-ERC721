@@ -13,6 +13,8 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
   string private _BluePrintURI = "";
   address private Owner; 
   uint private OneDayInBlockHeight = 7150;
+  bool private ETHMint = false;
+  uint256 private TotalShipCount;
 
     struct NewClass{
       uint256 ETHPrice;
@@ -66,6 +68,31 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
 
     function WithdrawDOGELON (uint256 _Amount) external onlyOwner {
       IERC20(_DogelonTokenContract).transfer(Owner, _Amount);
+    }
+
+    function SetETHMint (bool _State) public onlyOwner {
+      ETHMint = _State;
+    }
+
+    function Mint_Using_ETH(uint8 _Class) public payable {   
+      require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
+      require(msg.value >= Classes[_Class].ETHPrice, "Not Enough Funds!");            
+      unchecked {
+        Classes[_Class].CurrentSupply += 1;  
+        TotalShipCount += 1;        
+      }      
+      uint256 _TokenID = TotalShipCount;
+      _mint(msg.sender, _TokenID, 1, "");
+    }
+
+    function Mint_Using_DOGELON(uint8 _Class) public payable {
+      IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Classes[_Class].DOGELONPrice);      
+      unchecked {
+        Classes[_Class].CurrentSupply += 1;  
+        TotalShipCount += 1;          
+      }     
+      uint256 _TokenID = TotalShipCount;
+      _mint(msg.sender, _TokenID, 1, "");
     }
 
 }
