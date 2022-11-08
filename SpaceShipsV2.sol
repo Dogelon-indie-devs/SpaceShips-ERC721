@@ -39,6 +39,7 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
 
     constructor() ERC1155("") {
       Owner = msg.sender;
+      InitializeClasses();
     }
 
     function uri(uint256 _TokenID) override public view returns (string memory) {        
@@ -85,6 +86,10 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
     function SetETHMint (bool _State) public onlyOwner {
       ETHMint = _State;
     }
+
+    function SetClassLock (bool _State, uint8 _Class) public onlyOwner {
+      Classes[_Class].Unlocked = _State;
+    }
     
     function GetExistingShipsNumber() public view onlyOwner returns (uint256) {    
       return(TotalShipCount);             
@@ -96,7 +101,6 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
     }
 
     function Mint_Using_ETH(uint8 _Class) public payable {   
-      require(_Class <= Classes.length || Classes.length > 0, "Class Not Found!"); 
       require(Classes[_Class].Unlocked, "Mint Is Locked For This Class!"); 
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
       require(msg.value >= Classes[_Class].ETHPrice, "Not Enough Funds!");  
