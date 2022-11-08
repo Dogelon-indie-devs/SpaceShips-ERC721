@@ -75,6 +75,10 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
       ETHMint = _State;
     }
     
+    function GetExistingShipsNumber() public view onlyOwner returns (uint256) {    
+      return(TotalShipCount);             
+    }
+
     function GetClassByShipID(uint256 _ShipID) public view onlyOwner returns (uint8) {    
       uint8 ClassID = ShipClass[_ShipID];
       return(ClassID);             
