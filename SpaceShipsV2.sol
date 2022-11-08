@@ -15,6 +15,7 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
   uint private OneDayInBlockHeight = 7150;
   bool private ETHMint = false;
   uint256 private TotalShipCount;
+  mapping (uint256 => uint8) private ShipClass;
 
     struct NewClass{
       uint256 ETHPrice;
@@ -73,6 +74,11 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
     function SetETHMint (bool _State) public onlyOwner {
       ETHMint = _State;
     }
+    
+    function GetClassByShipID(uint256 _ShipID) public view onlyOwner returns (uint8) {    
+      uint8 ClassID = ShipClass[_ShipID];
+      return(ClassID);             
+    }
 
     function Mint_Using_ETH(uint8 _Class) public payable {   
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
@@ -82,6 +88,7 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
         TotalShipCount += 1;        
       }      
       uint256 _TokenID = TotalShipCount;
+      ShipClass[_TokenID] = _Class;
       _mint(msg.sender, _TokenID, 1, "");
     }
 
@@ -92,6 +99,7 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
         TotalShipCount += 1;          
       }     
       uint256 _TokenID = TotalShipCount;
+      ShipClass[_TokenID] = _Class;
       _mint(msg.sender, _TokenID, 1, "");
     }
 
