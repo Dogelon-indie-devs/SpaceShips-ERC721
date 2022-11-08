@@ -53,12 +53,17 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
 
     function AddNewClass(uint256 _ETHPrice, 
                          uint256 _DOGELONPrice, 
-                         uint256 _MaxSupply, 
-                         uint256 _CurrentSupply, 
+                         uint256 _MaxSupply,  
                          uint _BuildDaysInBlockHeight, 
                          bool _Unlocked) public onlyOwner { 
       uint _TempBuildDaysInBlockHeight = _BuildDaysInBlockHeight * OneDayInBlockHeight;
-      Classes.push(NewClass(_ETHPrice, _DOGELONPrice, _MaxSupply, _CurrentSupply, _TempBuildDaysInBlockHeight, _Unlocked)); 
+      NewClass memory MyNewClass;
+      MyNewClass.ETHPrice               = _ETHPrice;
+      MyNewClass.DOGELONPrice           = _DOGELONPrice;
+      MyNewClass.MaxSupply              = _MaxSupply;
+      MyNewClass.BuildDaysInBlockHeight = _TempBuildDaysInBlockHeight;   
+      MyNewClass.Unlocked               = _Unlocked;
+      Classes.push(MyNewClass);
     } 
 
     function SetBaseURI(string memory _NewURI) public onlyOwner {
@@ -91,6 +96,7 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
     }
 
     function Mint_Using_ETH(uint8 _Class) public payable {   
+      require(_Class <= Classes.length || Classes.length > 0, "Class Not Found!"); 
       require(Classes[_Class].Unlocked, "Mint Is Locked For This Class!"); 
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
       require(msg.value >= Classes[_Class].ETHPrice, "Not Enough Funds!");  
