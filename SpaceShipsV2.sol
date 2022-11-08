@@ -91,11 +91,11 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
       Classes[_Class].Unlocked = _State;
     }
     
-    function GetExistingShipsNumber() public view onlyOwner returns (uint256) {    
+    function GetExistingShipsNumber() public view returns (uint256) {    
       return(TotalShipCount);             
     }
 
-    function GetClassByShipID(uint256 _ShipID) public view onlyOwner returns (uint8) {    
+    function GetClassByShipID(uint256 _ShipID) public view returns (uint8) {    
       uint8 ClassID = ShipClass[_ShipID];
       return(ClassID);             
     }
