@@ -109,9 +109,9 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
         Classes[_Class].CurrentSupply += 1;  
         TotalShipCount += 1;        
       }      
-      uint256 _TokenID = TotalShipCount;
+      uint256 _TokenID = TotalShipCount;     
+      _mint(msg.sender, _TokenID, 1, ""); 
       ShipClass[_TokenID] = _Class;
-      _mint(msg.sender, _TokenID, 1, "");
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
@@ -123,9 +123,9 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
         Classes[_Class].CurrentSupply += 1;  
         TotalShipCount += 1;          
       }     
-      uint256 _TokenID = TotalShipCount;
-      ShipClass[_TokenID] = _Class;
+      uint256 _TokenID = TotalShipCount;     
       _mint(msg.sender, _TokenID, 1, "");
+      ShipClass[_TokenID] = _Class;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
