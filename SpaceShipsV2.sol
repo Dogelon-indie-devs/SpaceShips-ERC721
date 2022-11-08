@@ -14,8 +14,9 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
   address private Owner; 
   uint private OneDayInBlockHeight = 7150;
   bool private ETHMint = false;
-  uint256 private TotalShipCount;
+  uint256 private TotalShipCount;  
   mapping (uint256 => uint8) private ShipClass;
+  mapping (uint256 => uint) private ReadyAtBlockHeight;
 
     struct NewClass{
       uint256 ETHPrice;
@@ -40,8 +41,13 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
       Owner = msg.sender;
     }
 
-    function uri(uint256 _TokenID) override public view returns (string memory) {    
-      string memory MainURI = string(abi.encodePacked(_BaseURI, Strings.toString(_TokenID), ".json"));   
+    function uri(uint256 _TokenID) override public view returns (string memory) {        
+      string memory MainURI;
+      if (block.number > ReadyAtBlockHeight[_TokenID]) {
+        MainURI = string(abi.encodePacked(_BaseURI, Strings.toString(_TokenID), ".json"));    
+      } else {
+        MainURI = _BluePrintURI;   
+      }     
       return(MainURI);             
     }
 
@@ -95,6 +101,7 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
       uint256 _TokenID = TotalShipCount;
       ShipClass[_TokenID] = _Class;
       _mint(msg.sender, _TokenID, 1, "");
+      ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
     function Mint_Using_DOGELON(uint8 _Class) public payable {
@@ -107,6 +114,7 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
       uint256 _TokenID = TotalShipCount;
       ShipClass[_TokenID] = _Class;
       _mint(msg.sender, _TokenID, 1, "");
+      ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
 }
