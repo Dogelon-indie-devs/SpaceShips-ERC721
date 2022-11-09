@@ -5,10 +5,27 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-contract SpaceShipsNFTs is ERC1155, Ownable {
-  
+interface IERC2981Royalties {
+  function royaltyInfo(uint256 _tokenId, uint256 _value) external view returns (address _receiver, uint256 _royaltyAmount);
+}
+
+abstract contract ERC2981Base is ERC165, IERC2981Royalties {
+  struct RoyaltyInfo {
+    address recipient;
+    uint24 amount;
+  }
+
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool)
+    {
+      return interfaceId == type(IERC2981Royalties).interfaceId || super.supportsInterface(interfaceId);
+    }
+}
+
+contract SpaceShipsNFTs is ERC1155, ERC2981Base, Ownable {
+
+  RoyaltyInfo private _royalties;
   address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
   string private _BaseURI = "";
   string private _BluePrintURI = "";
@@ -38,9 +55,28 @@ contract SpaceShipsNFTs is ERC1155, Ownable {
        Classes.push(MyNewClass);
     }
 
-    constructor() ERC1155("") {
+    constructor(uint256 RoyaltiesPercentage) ERC1155("") {
       Owner = msg.sender;
+      _setRoyalties(Owner, RoyaltiesPercentage);
       InitializeClasses();
+    } 
+
+    function _setRoyalties(address recipient, uint256 value) internal {
+        uint256 RoyaltiesPercentageInBasePoints = value * 100;
+        require(RoyaltiesPercentageInBasePoints <= 10000, "Royalties Too High!");
+        _royalties = RoyaltyInfo(recipient, uint24(value));
+    }
+
+
+    function royaltyInfo(uint256, uint256 value) external view override returns (address receiver, uint256 royaltyAmount)
+    {
+      RoyaltyInfo memory royalties = _royalties;
+      receiver = royalties.recipient;
+      royaltyAmount = (value * royalties.amount) / 10000;
+    }
+    
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, ERC2981Base) returns (bool) {
+      return super.supportsInterface(interfaceId);
     }
 
     function uri(uint256 _TokenID) override public view returns (string memory) {        
