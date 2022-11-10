@@ -52,6 +52,10 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       _setDefaultRoyalty(_Receiver, _RoyaltyPercentageInBasePoints);
     }
 
+    function SetRoyaltyToSpecificToken(uint256 _TokenID, address _Receiver, uint96 _RoyaltyPercentageInBasePoints) public onlyOwner {
+      _setTokenRoyalty(_TokenID, _Receiver, _RoyaltyPercentageInBasePoints);
+    }
+
     function uri(uint256 _TokenID) override public view returns (string memory) {        
       string memory MainURI;
       if (block.number > ReadyAtBlockHeight[_TokenID]) {
