@@ -9,15 +9,21 @@ import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
 contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
 
+  uint256 SalvageCostDogelon = 10000000;
+  uint256 SalvageCostEther   = 0.001 ether;
+
   address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
   string private _BaseURI = "";
   string private _BluePrintURI = "";
+  string private _DerelictURI = "";
   address private Owner; 
   uint private OneDayInBlockHeight = 7150;
   bool private ETHMint = false;
   uint256 private TotalShipCount;  
   mapping (uint256 => uint8) private ShipClass;
+  mapping (uint256 => bool) private ShipDerelict;  
   mapping (uint256 => uint) private ReadyAtBlockHeight;
+  mapping (address => bool) private SalvageRights;
 
     struct NewClass{
       uint256 ETHPrice;
@@ -30,12 +36,12 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
     NewClass[] private Classes; 
 
     function InitializeClasses() private {
-       NewClass memory MyNewClass;
-       MyNewClass.ETHPrice = 0;
-       MyNewClass.DOGELONPrice = 0;
-       MyNewClass.MaxSupply = 0;
-       MyNewClass.BuildDaysInBlockHeight = 0;      
-       Classes.push(MyNewClass);
+      NewClass memory MyNewClass;
+      MyNewClass.ETHPrice = 0;
+      MyNewClass.DOGELONPrice = 0;
+      MyNewClass.MaxSupply = 0;
+      MyNewClass.BuildDaysInBlockHeight = 0;      
+      Classes.push(MyNewClass);
     }
   
     constructor() ERC1155("") {
@@ -54,7 +60,9 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
     
     function uri(uint256 _TokenID) override public view returns (string memory) {        
       string memory MainURI;
-      if (block.number > ReadyAtBlockHeight[_TokenID]) {
+      if (ShipDerelict[_TokenID]) {
+        MainURI = _DerelictURI;   
+      } else if (block.number > ReadyAtBlockHeight[_TokenID]) {
         MainURI = string(abi.encodePacked(_BaseURI, Strings.toString(_TokenID), ".json"));    
       } else {
         MainURI = _BluePrintURI;   
@@ -108,6 +116,34 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
     function GetClassByShipID(uint256 _ShipID) public view returns (uint8) {    
       uint8 ClassID = ShipClass[_ShipID];
       return(ClassID);             
+    }
+
+    function ChangeSalvageCosts(uint256 _Dogelon, uint256 _Ether) public onlyOwner {    
+      SalvageCostDogelon = _Dogelon;
+      SalvageCostEther   = _Ether;          
+    }
+    
+    function GetSalvageCosts() public view onlyOwner returns (uint256, uint256) {    
+      return(SalvageCostDogelon, SalvageCostEther);        
+    }
+    
+    function SetShipAsDerelict(uint256 _ShipID) public onlyOwner {    
+      ReadyAtBlockHeight[_ShipID] = block.timestamp;
+      ShipDerelict[_ShipID] = true;     
+    }
+    
+    // TODO
+    function BuySalvageRights(uint256 _Currency, bool _EtherEnabled) public {    
+     // if player_has_salvage_rights then halt
+     // token.transfer (player -> contract, salvage_costs)
+     // SalvageRights[] =;
+    }
+    // TODO
+    function MintDerelictAndTransferOwnership(uint256 _Class, address _Player) public onlyOwner {    
+      // if not player_has_salvage_rights then halt
+      // var new_ship_ID:= mint_ship(class)
+      // set_ship_owner(new_ship_ID, Player)
+      // SalvageRights[_Player] = false;
     }
 
     function Mint_Using_ETH(uint8 _Class) public payable {   
