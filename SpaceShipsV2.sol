@@ -146,6 +146,10 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       // SalvageRights[_Player] = false;
     }
 
+    function SetDerelictURI(string memory _Uri) public onlyOwner {    
+      _DerelictURI = _Uri; 
+    }
+
     function Mint_Using_ETH(uint8 _Class) public payable {   
       require(Classes[_Class].Unlocked, "Mint Is Locked For This Class!"); 
       require(ETHMint, "Mint Using ETH Is Disabled For Now, Try Using Dogelon!"); 
