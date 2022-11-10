@@ -38,10 +38,10 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
        Classes.push(MyNewClass);
     }
   
-    constructor(uint96 _RoyaltyPercentageInBasePoints) ERC1155("") {
+    constructor() ERC1155("") {
       Owner = msg.sender;
       InitializeClasses();
-      _setDefaultRoyalty(Owner, _RoyaltyPercentageInBasePoints);
+      _setDefaultRoyalty(Owner, 1000);
     } 
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, ERC2981) returns (bool) {
