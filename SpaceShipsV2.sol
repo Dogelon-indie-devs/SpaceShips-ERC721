@@ -11,7 +11,7 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
 
   uint256 SalvageCostDogelon = 10000000;
   uint256 SalvageCostEther   = 0.001 ether;
-
+  uint256 private LastMintedShipID;
   address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
   string private _BaseURI = "";
   string private _BluePrintURI = "";
@@ -152,12 +152,20 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       }     
     }
 
-    // TODO
-    function MintDerelictAndTransferOwnership(uint256 _Class, address _Player) public onlyOwner {    
-      // if not player_has_salvage_rights then halt
-      // var new_ship_ID:= mint_ship(class)
-      // set_ship_owner(new_ship_ID, Player)
-      // SalvageRights[_Player] = false;
+    function MintDerelictAndTransferOwnershipEther(uint8 _Class, address _Player) public onlyOwner {    
+      if (SalvageRights[_Player]) { 
+        Mint_Using_ETH(_Class);
+        safeTransferFrom(msg.sender, _Player, LastMintedShipID, 1, "");
+        SalvageRights[_Player] = false;  
+      }
+    }
+    
+    function MintDerelictAndTransferOwnershipDogelon(uint8 _Class, address _Player) public onlyOwner {    
+      if (SalvageRights[_Player]) { 
+        Mint_Using_DOGELON(_Class);
+        safeTransferFrom(msg.sender, _Player, LastMintedShipID, 1, "");
+        SalvageRights[_Player] = false;  
+      }
     }
 
     function SetDerelictURI(string memory _Uri) public onlyOwner {    
@@ -176,12 +184,14 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       uint256 _TokenID = TotalShipCount;     
       _mint(msg.sender, _TokenID, 1, ""); 
       ShipClass[_TokenID] = _Class;
+      LastMintedShipID = _TokenID;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
     function Mint_Using_DOGELON(uint8 _Class) public payable {
       require(Classes[_Class].Unlocked, "Mint Is Locked For This Class!");
-      require(Classes[_Class].CurrentSupply < Classes[_Class].MaxSupply, "Max Supply Exceeded!");     
+      require(Classes[_Class].CurrentSupply < Classes[_Class].MaxSupply, "Max Supply Exceeded!");   
+      require(IERC20(_DogelonTokenContract).balanceOf(msg.sender) >= Classes[_Class].DOGELONPrice, "Not Enough Funds!");  
       IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Classes[_Class].DOGELONPrice);      
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
@@ -190,6 +200,7 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       uint256 _TokenID = TotalShipCount;     
       _mint(msg.sender, _TokenID, 1, "");
       ShipClass[_TokenID] = _Class;
+      LastMintedShipID = _TokenID;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
