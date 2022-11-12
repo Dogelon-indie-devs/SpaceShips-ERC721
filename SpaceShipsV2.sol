@@ -84,6 +84,10 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       MyNewClass.Unlocked               = _Unlocked;
       Classes.push(MyNewClass);
     } 
+    
+    function GetClasses() public view returns (NewClass[] memory) {
+      return Classes;
+    }
 
     function SetBaseURI(string memory _NewURI) public onlyOwner {
       _BaseURI = _NewURI;
