@@ -19,6 +19,7 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
   address private Owner; 
   uint private OneDayInBlockHeight = 7150;
   bool private ETHMint = false;
+  bool private PauseSalvageRights = false;
   uint256 private TotalShipCount;  
   mapping (uint256 => uint8) private ShipClass;
   mapping (uint256 => bool) private ShipDerelict;  
@@ -91,6 +92,10 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
 
     function SetBaseURI(string memory _NewURI) public onlyOwner {
       _BaseURI = _NewURI;
+    }
+
+    function SetSalvageRightsState(bool _State) public onlyOwner {
+      PauseSalvageRights = _State;
     }
 
     function SetBluePrintURI(string memory _NewURI) public onlyOwner {
