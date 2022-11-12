@@ -136,7 +136,7 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       ShipDerelict[_ShipID] = true;     
     }
     
-    function PlayerHasSalvageRights(address _Player) public view onlyOwner returns (bool) {    
+    function PlayerHasSalvageRights(address _Player) public view returns (bool) {    
       return(SalvageRights[_Player]);        
     } 
  
