@@ -134,14 +134,23 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
     
     function PlayerHasSalvageRights(address _Player) public view onlyOwner returns (bool) {    
       return(SalvageRights[_Player]);        
+    } 
+ 
+    function BuySalvageRightsDogelon() payable external {    
+      if (!SalvageRights[msg.sender]) {
+        IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, SalvageCostDogelon); 
+        SalvageRights[msg.sender] = true;
+      }     
     }
 
-    // TODO
-    function BuySalvageRights(uint256 _Currency, bool _EtherEnabled) public {    
-     // if player_has_salvage_rights then halt
-     // token.transfer (player -> contract, salvage_costs)
-     // SalvageRights[] =;
+    function BuySalvageRightsEther() payable external {   
+      if (!SalvageRights[msg.sender]) {   
+        require(msg.value >= SalvageCostEther, "Not Enough Funds!"); 
+        payable(Owner).transfer(SalvageCostEther);  
+        SalvageRights[msg.sender] = true;
+      }     
     }
+
     // TODO
     function MintDerelictAndTransferOwnership(uint256 _Class, address _Player) public onlyOwner {    
       // if not player_has_salvage_rights then halt
