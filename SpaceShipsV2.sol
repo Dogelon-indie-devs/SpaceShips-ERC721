@@ -96,6 +96,10 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
     function SetBluePrintURI(string memory _NewURI) public onlyOwner {
       _BaseURI = _NewURI;
     }
+
+    function GiftSalvageRights(address _Player) public onlyOwner {
+      SalvageRights[_Player] = true;
+    }
     
     function WithdrawETH () external onlyOwner {
       payable(Owner).transfer(address(this).balance);  
