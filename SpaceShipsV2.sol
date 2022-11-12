@@ -138,6 +138,7 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
  
     function BuySalvageRightsDogelon() payable external {    
       if (!SalvageRights[msg.sender]) {
+        require(IERC20(_DogelonTokenContract).balanceOf(msg.sender) >= SalvageCostDogelon, "Not Enough Funds!");
         IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, SalvageCostDogelon); 
         SalvageRights[msg.sender] = true;
       }     
