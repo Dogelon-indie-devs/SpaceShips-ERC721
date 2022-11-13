@@ -109,7 +109,6 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
     function Mint_Using_DOGELON(uint8 _Class) public payable {
       require(Classes[_Class].Unlocked, "Mint Is Locked For This Class!");
       require(Classes[_Class].CurrentSupply < Classes[_Class].MaxSupply, "Max Supply Exceeded!");   
-      require(IERC20(_DogelonTokenContract).balanceOf(msg.sender) >= Classes[_Class].DOGELONPrice, "Not Enough Funds!");  
       IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Classes[_Class].DOGELONPrice);      
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
