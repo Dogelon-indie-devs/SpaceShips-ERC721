@@ -18,6 +18,7 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
   uint256 private TotalShipCount;  
   mapping (uint256 => uint8) private ShipClass;
   mapping (uint256 => uint) private ReadyAtBlockHeight;
+  mapping (address => bool) private Whitelisted;
 
     struct NewClass{
       uint256 DOGELONPrice;
@@ -104,6 +105,10 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
     function GetClassByShipID(uint256 _ShipID) public view returns (uint8) {    
       uint8 ClassID = ShipClass[_ShipID];
       return(ClassID);             
+    }
+
+    function SetWhitelistAddress(address _Address, bool _State) public onlyOwner {
+      Whitelisted[_Address] = _State;
     }
 
     function Mint_Using_DOGELON(uint8 _Class) public payable {
