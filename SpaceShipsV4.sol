@@ -7,8 +7,11 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
+import "hardhat/console.sol"; // For Test Only
+
 contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
 
+  using Strings for uint256;
   uint256 private LastMintedShipID;
   address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
   string private _BaseURI = "";
@@ -48,14 +51,12 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       _setDefaultRoyalty(_Receiver, _RoyaltyPercentageInBasePoints);
     }
 
-    function tokenURI(uint256 _TokenID) override public view returns (string memory) {        
-      string memory MainURI;
-      if (block.number > ReadyAtBlockHeight[_TokenID]) {
-        MainURI = string(abi.encodePacked(_BaseURI, Strings.toString(_TokenID), ".json"));    
-      } else {
-        MainURI = _BluePrintURI;   
-      }     
-      return(MainURI);             
+    function tokenURI(uint256 tokenId) override public virtual view returns (string memory) {
+      _requireMinted(tokenId);       
+      if (block.number > ReadyAtBlockHeight[tokenId]) {
+        return string(abi.encodePacked(_BaseURI, tokenId.toString(), ".json"));
+      }
+      return _BluePrintURI;
     }
 
     function AddNewClass(uint256 _DOGELONPrice, 
@@ -79,7 +80,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     }
 
     function SetBluePrintURI(string memory _NewURI) public onlyOwner {
-      _BaseURI = _NewURI;
+      _BluePrintURI = _NewURI;
     }
 
     function WithdrawETH () external onlyOwner {
