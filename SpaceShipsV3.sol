@@ -111,6 +111,20 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       Whitelisted[_Address] = _State;
     }
 
+    function Mint_Using_Contract(address NewTokenOwner, uint8 _Class) public {
+      require(Whitelisted[msg.sender], "Opens For Whitelisted Only"); 
+      require(Classes[_Class].CurrentSupply < Classes[_Class].MaxSupply, "Max Supply Exceeded!"); 
+      unchecked {
+        Classes[_Class].CurrentSupply += 1;  
+        TotalShipCount += 1;          
+      }     
+      uint256 _TokenID = TotalShipCount;     
+      _mint(NewTokenOwner, _TokenID, 1, "");
+      ShipClass[_TokenID] = _Class;
+      LastMintedShipID = _TokenID;
+      ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
+    }
+
     function Mint_Using_DOGELON(uint8 _Class) public payable {
       require(Classes[_Class].Unlocked, "Mint Is Locked For This Class!");
       require(Classes[_Class].CurrentSupply < Classes[_Class].MaxSupply, "Max Supply Exceeded!");   
