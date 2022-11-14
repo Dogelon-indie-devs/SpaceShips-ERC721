@@ -17,12 +17,12 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
   uint private OneDayInBlockHeight = 7150;
   uint256 private TotalShipCount;  
   mapping (uint256 => uint8) private ShipClass;
-  mapping (uint256 => uint) private ReadyAtBlockHeight;
-  mapping (address => bool) private Whitelisted;
+  mapping (uint256 => uint)  private ReadyAtBlockHeight;
+  mapping (address => bool)  private Whitelisted;
 
     struct NewClass{
       uint256 DOGELONPrice;
-      uint256 MaxSupply;
+      uint256 MaxMintSupply;
       uint256 CurrentSupply;
       uint BuildDaysInBlockHeight;
       bool Unlocked;  
@@ -30,10 +30,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     NewClass[] private Classes; 
 
     function InitializeClasses() private {
-      NewClass memory MyNewClass;
-      MyNewClass.DOGELONPrice = 0;
-      MyNewClass.MaxSupply = 0;
-      MyNewClass.BuildDaysInBlockHeight = 0;      
+      NewClass memory MyNewClass;  
       Classes.push(MyNewClass);
     }
   
@@ -62,15 +59,14 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     }
 
     function AddNewClass(uint256 _DOGELONPrice, 
-                         uint256 _MaxSupply,  
-                         uint _BuildDaysInBlockHeight, 
-                         bool _Unlocked) public onlyOwner { 
-      uint _TempBuildDaysInBlockHeight = _BuildDaysInBlockHeight * OneDayInBlockHeight;
+                         uint256 _MaxMintSupply,  
+                         uint _BuildDays) public onlyOwner { 
+      uint _TempBuildDaysInBlockHeight  = _BuildDays * OneDayInBlockHeight;
       NewClass memory MyNewClass;
       MyNewClass.DOGELONPrice           = _DOGELONPrice;
-      MyNewClass.MaxSupply              = _MaxSupply;
+      MyNewClass.MaxMintSupply          = _MaxMintSupply;
       MyNewClass.BuildDaysInBlockHeight = _TempBuildDaysInBlockHeight;   
-      MyNewClass.Unlocked               = _Unlocked;
+      MyNewClass.Unlocked               = true;
       Classes.push(MyNewClass);
     } 
     
@@ -90,15 +86,15 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       payable(Owner).transfer(address(this).balance);  
     }
 
-    function WithdrawDOGELON (uint256 _Amount) external onlyOwner {
-      IERC20(_DogelonTokenContract).transfer(Owner, _Amount);
+    function RescueTokens (address _TokenAddress, uint256 _Amount) external onlyOwner {
+      IERC20(_TokenAddress).transfer(Owner, _Amount);
     }
 
-    function SetClassLock (bool _State, uint8 _Class) public onlyOwner {
+    function SetClassUnlocked (bool _State, uint8 _Class) public onlyOwner {
       Classes[_Class].Unlocked = _State;
     }
     
-    function GetExistingShipsNumber() public view returns (uint256) {    
+    function GetTotalShipCount() public view returns (uint256) {    
       return(TotalShipCount);             
     }
 
@@ -107,12 +103,12 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       return(ClassID);             
     }
 
-    function SetWhitelistContract(address _Contract, bool _State) public onlyOwner {
+    function SetExternalContractWhitelist(address _Contract, bool _State) public onlyOwner {
       Whitelisted[_Contract] = _State;
     }
 
-    function Mint_Using_Contract(address NewTokenOwner, uint8 _Class) public {
-      require(Whitelisted[msg.sender] || msg.sender == Owner, "Opens For Whitelisted Only"); 
+    function Whitelisted_contract_mint(address NewTokenOwner, uint8 _Class) public {
+      require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Mint Method!"); 
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
         TotalShipCount += 1;          
@@ -125,8 +121,8 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     }
 
     function Mint_Using_DOGELON(uint8 _Class) public payable {
-      require(Classes[_Class].Unlocked, "Mint Is Locked For This Class!");
-      require(Classes[_Class].CurrentSupply < Classes[_Class].MaxSupply, "Max Supply Exceeded!");   
+      require(Classes[_Class].Unlocked, "Minting Is Locked For This Class!");
+      require(Classes[_Class].CurrentSupply < Classes[_Class].MaxMintSupply, "Max Supply Exceeded!");   
       IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Classes[_Class].DOGELONPrice);      
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
