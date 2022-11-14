@@ -7,12 +7,9 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
-import "hardhat/console.sol"; // For Test Only
-
 contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
 
   using Strings for uint256;
-  uint256 private LastMintedShipID;
   address constant private _DogelonTokenContract = 0x761D38e5ddf6ccf6Cf7c55759d5210750B5D60F3;
   string private _BaseURI = "";
   string private _BluePrintURI = "";
@@ -25,8 +22,8 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
 
     struct NewClass{
       uint256 DOGELONPrice;
-      uint256 MaxMintSupply;
-      uint256 CurrentSupply;
+      uint24 MaxMintSupply;
+      uint24 CurrentSupply;
       uint BuildDaysInBlockHeight;
       bool Unlocked;  
     }  
@@ -60,7 +57,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     }
 
     function AddNewClass(uint256 _DOGELONPrice, 
-                         uint256 _MaxMintSupply,  
+                         uint24 _MaxMintSupply,  
                          uint _BuildDays) public onlyOwner { 
       uint _TempBuildDaysInBlockHeight  = _BuildDays * OneDayInBlockHeight;
       NewClass memory MyNewClass;
@@ -112,6 +109,10 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Burn Method!"); 
       _burn(_TokenID);
     }
+    
+    function IncreaseClassMaxSupply(uint8 _Class, uint8 _NumberOfSlots) public onlyOwner {
+      Classes[_Class].MaxMintSupply = Classes[_Class].MaxMintSupply + _NumberOfSlots;   
+    }
 
     function Whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) public {
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Mint Method!"); 
@@ -122,7 +123,6 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       uint256 _TokenID = TotalShipCount;     
       _mint(_NewTokenOwner, _TokenID);
       ShipClass[_TokenID] = _Class;
-      LastMintedShipID = _TokenID;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
@@ -137,7 +137,6 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       uint256 _TokenID = TotalShipCount;     
       _mint(msg.sender, _TokenID);
       ShipClass[_TokenID] = _Class;
-      LastMintedShipID = _TokenID;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
 
