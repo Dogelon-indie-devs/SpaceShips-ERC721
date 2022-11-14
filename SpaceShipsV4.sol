@@ -42,7 +42,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       InitializeClasses();
       _setDefaultRoyalty(Owner, 1000);
     } 
-
+ 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
       return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
     }
@@ -108,14 +108,19 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       Whitelisted[_Contract] = _State;
     }
 
-    function Whitelisted_contract_mint(address NewTokenOwner, uint8 _Class) public {
+    function BurnToken(uint256 _TokenID) public {
+      require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Burn Method!"); 
+      _burn(_TokenID);
+    }
+
+    function Whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) public {
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Mint Method!"); 
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
         TotalShipCount += 1;          
       }     
       uint256 _TokenID = TotalShipCount;     
-      _mint(NewTokenOwner, _TokenID);
+      _mint(_NewTokenOwner, _TokenID);
       ShipClass[_TokenID] = _Class;
       LastMintedShipID = _TokenID;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
