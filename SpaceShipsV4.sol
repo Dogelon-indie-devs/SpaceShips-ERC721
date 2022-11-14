@@ -113,8 +113,10 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     function IncreaseClassMaxSupply(uint8 _Class, uint8 _NumberOfSlots) public onlyOwner {
       Classes[_Class].MaxMintSupply = Classes[_Class].MaxMintSupply + _NumberOfSlots;   
     }
-
+   
     function Whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) public {
+      require(Classes.length > 1, "Classes Empty!");    
+      require(_Class < Classes.length && _Class > 0, "Class Not Found!");
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Mint Method!"); 
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
@@ -127,6 +129,8 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     }
 
     function Mint_Using_DOGELON(uint8 _Class) public payable {
+      require(Classes.length > 1, "Classes Empty!");    
+      require(_Class < Classes.length && _Class > 0, "Class Not Found!");
       require(Classes[_Class].Unlocked, "Minting Is Locked For This Class!");
       require(Classes[_Class].CurrentSupply < Classes[_Class].MaxMintSupply, "Max Supply Exceeded!");   
       IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Classes[_Class].DOGELONPrice);      
