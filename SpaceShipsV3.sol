@@ -107,8 +107,8 @@ contract SpaceShipsNFTs is ERC1155, ERC2981, Ownable {
       return(ClassID);             
     }
 
-    function SetWhitelistAddress(address _Address, bool _State) public onlyOwner {
-      Whitelisted[_Address] = _State;
+    function SetWhitelistContract(address _Contract, bool _State) public onlyOwner {
+      Whitelisted[_Contract] = _State;
     }
 
     function Mint_Using_Contract(address NewTokenOwner, uint8 _Class) public {
