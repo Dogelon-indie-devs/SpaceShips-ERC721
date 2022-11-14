@@ -1,0 +1,38 @@
+{
+    "name": "Marvin",
+    "description": "Test ship in the #DogelonSpaceships game",
+    "image": "ipfs/whatever",
+    "attributes": [{
+            "trait_type": "Class Name",
+            "value": "Clownfish"
+        }, {
+            "trait_type": "Hull Color",
+            "value": "#FFA500"
+        }, {
+            "trait_type": "Weapon",
+            "value": "Dual plasma gun"
+        }, {
+            "trait_type": "Interior Tiles",
+            "value": 8
+        }, {
+            "trait_type": "Exterior Tiles",
+            "value": 22.5
+        }, {
+            "display_type": "boost_number",
+            "trait_type": "Cargo Capacity",
+            "value": 10
+        }, {
+            "display_type": "boost_percentage",
+            "trait_type": "Engine Boost",
+            "value": 25
+        }, {
+            "display_type": "number",
+            "trait_type": "Class",
+            "value": 1
+        }, {
+            "display_type": "date",
+            "trait_type": "birthday",
+            "value": 1668461684
+        }
+    ]
+}
