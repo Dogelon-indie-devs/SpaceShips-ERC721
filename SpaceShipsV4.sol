@@ -111,9 +111,11 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     }
     
     function IncreaseClassMaxSupply(uint8 _Class, uint8 _NumberOfSlots) public onlyOwner {
-      Classes[_Class].MaxMintSupply = Classes[_Class].MaxMintSupply + _NumberOfSlots;   
+      unchecked {
+        Classes[_Class].MaxMintSupply += _NumberOfSlots;
+      }   
     }
-   
+
     function Whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) public {
       require(Classes.length > 1, "Classes Empty!");    
       require(_Class < Classes.length && _Class > 0, "Class Not Found!");
