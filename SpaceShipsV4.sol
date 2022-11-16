@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity >=0.8.4 < 0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -34,7 +34,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       Classes.push(MyNewClass);
     }
   
-    constructor() ERC721("DOGELONSPACESHIPSNFTS", "ELONSHIPS") {
+    constructor() ERC721("DOGELONSPACESHIPSNFTS", "DSSN") {
       Owner = msg.sender;
       InitializeClasses();
       _setDefaultRoyalty(Owner, 1000);
@@ -53,17 +53,16 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       if (block.number > ReadyAtBlockHeight[tokenId]) {
         return string(abi.encodePacked(_BaseURI, tokenId.toString(), ".json"));
       }
-      return _BluePrintURI;
+		return _BluePrintURI;
     }
 
     function AddNewClass(uint256 _DOGELONPrice, 
                          uint24 _MaxMintSupply,  
                          uint _BuildDays) public onlyOwner { 
-      uint _TempBuildDaysInBlockHeight  = _BuildDays * OneDayInBlockHeight;
       NewClass memory MyNewClass;
       MyNewClass.DOGELONPrice           = _DOGELONPrice;
       MyNewClass.MaxMintSupply          = _MaxMintSupply;
-      MyNewClass.BuildDaysInBlockHeight = _TempBuildDaysInBlockHeight;   
+      MyNewClass.BuildDaysInBlockHeight = _BuildDays * OneDayInBlockHeight;
       MyNewClass.Unlocked               = true;
       Classes.push(MyNewClass);
     } 
@@ -96,45 +95,42 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       return(TotalShipCount);             
     }
 
-    function GetClassByShipID(uint256 _ShipID) public view returns (uint8) {    
-      uint8 ClassID = ShipClass[_ShipID];
-      return(ClassID);             
+    function GetClassByTokenID(uint256 _TokenID) public view returns (uint8) {   
+      return( ShipClass[_TokenID] );             
     }
 
     function SetExternalContractWhitelist(address _Contract, bool _State) public onlyOwner {
       Whitelisted[_Contract] = _State;
     }
 
+    function ChangeClassMaxSupply(uint8 _Class, uint8 _NewMaxMintSupply) public onlyOwner {
+      unchecked {
+        Classes[_Class].MaxMintSupply = _NewMaxMintSupply;
+      }   
+    }
+
     function BurnToken(uint256 _TokenID) public {
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Burn Method!"); 
       _burn(_TokenID);
     }
-    
-    function IncreaseClassMaxSupply(uint8 _Class, uint8 _NumberOfSlots) public onlyOwner {
-      unchecked {
-        Classes[_Class].MaxMintSupply += _NumberOfSlots;
-      }   
-    }
 
     function Whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) public {
-      require(Classes.length > 1, "Classes Empty!");    
-      require(_Class < Classes.length && _Class > 0, "Class Not Found!");
+      require(_Class < Classes.length, "Class Not Found!");
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Mint Method!"); 
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
         TotalShipCount += 1;          
-      }     
+      }
       uint256 _TokenID = TotalShipCount;     
       _mint(_NewTokenOwner, _TokenID);
       ShipClass[_TokenID] = _Class;
-      ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
+      ReadyAtBlockHeight[_TokenID] = block.number;
     }
 
     function Mint_Using_DOGELON(uint8 _Class) public payable {
-      require(Classes.length > 1, "Classes Empty!");    
-      require(_Class < Classes.length && _Class > 0, "Class Not Found!");
+      require(_Class < Classes.length, "Class Not Found!");
       require(Classes[_Class].Unlocked, "Minting Is Locked For This Class!");
-      require(Classes[_Class].CurrentSupply < Classes[_Class].MaxMintSupply, "Max Supply Exceeded!");   
+      require(Classes[_Class].CurrentSupply < Classes[_Class].MaxMintSupply, "Mint Limit For This Class reached!");   
       IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Classes[_Class].DOGELONPrice);      
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
