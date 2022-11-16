@@ -14,6 +14,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
   string private _BaseURI = "";
   string private _BluePrintURI = "";
   address private Owner; 
+  bool private MintingEnabled;
   uint private OneDayInBlockHeight = 7150;
   uint256 private TotalShipCount;  
   mapping (uint256 => uint8) private ShipClass;
@@ -25,8 +26,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       uint24 MaxMintSupply;
       uint24 CurrentSupply;
       uint BuildDaysInBlockHeight;
-      bool Unlocked;  
-    }  
+    }
     NewClass[] private Classes; 
 
     function InitializeClasses() private {
@@ -36,9 +36,10 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
   
     constructor() ERC721("DOGELONSPACESHIPSNFTS", "DSSN") {
       Owner = msg.sender;
+	  MintingEnabled = false;
       InitializeClasses();
       _setDefaultRoyalty(Owner, 1000);
-    } 
+    }
  
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
       return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
@@ -63,9 +64,8 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       MyNewClass.DOGELONPrice           = _DOGELONPrice;
       MyNewClass.MaxMintSupply          = _MaxMintSupply;
       MyNewClass.BuildDaysInBlockHeight = _BuildDays * OneDayInBlockHeight;
-      MyNewClass.Unlocked               = true;
       Classes.push(MyNewClass);
-    } 
+    }
     
     function GetClasses() public view returns (NewClass[] memory) {
       return Classes;
@@ -87,8 +87,8 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       IERC20(_TokenAddress).transfer(Owner, _Amount);
     }
 
-    function SetClassUnlocked (bool _State, uint8 _Class) public onlyOwner {
-      Classes[_Class].Unlocked = _State;
+    function SetMintState (bool _State) public onlyOwner {
+      MintingEnabled = _State;
     }
     
     function GetTotalShipCount() public view returns (uint256) {    
@@ -106,7 +106,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     function ChangeClassMaxSupply(uint8 _Class, uint8 _NewMaxMintSupply) public onlyOwner {
       unchecked {
         Classes[_Class].MaxMintSupply = _NewMaxMintSupply;
-      }   
+      }
     }
 
     function BurnToken(uint256 _TokenID) public {
@@ -128,14 +128,14 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
     }
 
     function Mint_Using_DOGELON(uint8 _Class) public payable {
+      require(MintingEnabled, "Minting Is Locked!");
       require(_Class < Classes.length, "Class Not Found!");
-      require(Classes[_Class].Unlocked, "Minting Is Locked For This Class!");
       require(Classes[_Class].CurrentSupply < Classes[_Class].MaxMintSupply, "Mint Limit For This Class reached!");   
       IERC20(_DogelonTokenContract).transferFrom(msg.sender, Owner, Classes[_Class].DOGELONPrice);      
       unchecked {
         Classes[_Class].CurrentSupply += 1;  
         TotalShipCount += 1;          
-      }     
+      }
       uint256 _TokenID = TotalShipCount;     
       _mint(msg.sender, _TokenID);
       ShipClass[_TokenID] = _Class;
