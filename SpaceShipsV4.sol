@@ -45,7 +45,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
     }
     
-    function SetRoyalty(address _Receiver, uint96 _RoyaltyPercentageInBasePoints) public onlyOwner {
+    function SetRoyalty(address _Receiver, uint96 _RoyaltyPercentageInBasePoints) external onlyOwner {
       _setDefaultRoyalty(_Receiver, _RoyaltyPercentageInBasePoints);
     }
 
@@ -71,11 +71,11 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       return Classes;
     }
 
-    function SetBaseURI(string memory _NewURI) public onlyOwner {
+    function SetBaseURI(string memory _NewURI) external onlyOwner {
       _BaseURI = _NewURI;
     }
 
-    function SetBluePrintURI(string memory _NewURI) public onlyOwner {
+    function SetBluePrintURI(string memory _NewURI) external onlyOwner {
       _BluePrintURI = _NewURI;
     }
 
@@ -87,7 +87,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       IERC20(_TokenAddress).transfer(Owner, _Amount);
     }
 
-    function SetMintState (bool _State) public onlyOwner {
+    function SetMintState (bool _State) external onlyOwner {
       MintingEnabled = _State;
     }
     
@@ -99,22 +99,22 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       return( ShipClass[_TokenID] );             
     }
 
-    function SetExternalContractWhitelist(address _Contract, bool _State) public onlyOwner {
+    function SetExternalContractWhitelist(address _Contract, bool _State) external onlyOwner {
       Whitelisted[_Contract] = _State;
     }
 
-    function ChangeClassMaxSupply(uint8 _Class, uint8 _NewMaxMintSupply) public onlyOwner {
+    function ChangeClassMaxSupply(uint8 _Class, uint8 _NewMaxMintSupply) external onlyOwner {
       unchecked {
         Classes[_Class].MaxMintSupply = _NewMaxMintSupply;
       }
     }
 
-    function BurnToken(uint256 _TokenID) public {
+    function BurnToken(uint256 _TokenID) external {
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Burn Method!"); 
       _burn(_TokenID);
     }
 
-    function Whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) public {
+    function Whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) external {
       require(_Class < Classes.length, "Class Not Found!");
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Mint Method!"); 
       unchecked {
@@ -127,7 +127,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       ReadyAtBlockHeight[_TokenID] = block.number;
     }
 
-    function Mint_Using_DOGELON(uint8 _Class) public payable {
+    function Mint_Using_DOGELON(uint8 _Class) external payable {
       require(MintingEnabled, "Minting Is Locked!");
       require(_Class < Classes.length, "Class Not Found!");
       require(Classes[_Class].CurrentSupply < Classes[_Class].MaxMintSupply, "Mint Limit For This Class reached!");   
