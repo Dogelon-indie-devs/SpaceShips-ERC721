@@ -34,7 +34,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       Classes.push(MyNewClass);
     }
   
-    constructor() ERC721("DOGELONSPACESHIPSNFTS", "DSSN") {
+    constructor() ERC721("DOGELONSPACESHIPS", "ELONSHIP") {
       Owner = msg.sender;
 	  MintingEnabled = false;
       InitializeClasses();
