@@ -122,7 +122,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
         TotalShipCount += 1;          
       }
       uint256 _TokenID = TotalShipCount;     
-      _mint(_NewTokenOwner, _TokenID);
+      _safeMint(_NewTokenOwner, _TokenID);
       ShipClass[_TokenID] = _Class;
       ReadyAtBlockHeight[_TokenID] = block.number;
     }
@@ -137,7 +137,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
         TotalShipCount += 1;          
       }
       uint256 _TokenID = TotalShipCount;     
-      _mint(msg.sender, _TokenID);
+      _safeMint(msg.sender, _TokenID);
       ShipClass[_TokenID] = _Class;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
