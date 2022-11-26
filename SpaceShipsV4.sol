@@ -99,6 +99,26 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       return( ShipClass[_TokenID] );             
     }
 
+    function GetNewShipsSinceID(uint256 ShipID) public view returns (string memory) {
+      _requireMinted(ShipID); 
+      if (ShipID == TotalShipCount) {
+        return("");
+      }
+      string memory Json = "[";
+      uint256 I = ShipID;     
+      while (I <= TotalShipCount) {                  
+        string memory TempJson = string(abi.encodePacked('{"ShipID":"', I.toString(),'","ClassID":"',Strings.toString(ShipClass[I]),'","Owner":"',Strings.toHexString(_ownerOf(I)),'"}')); 
+        if (keccak256(abi.encodePacked(Json)) == keccak256(abi.encodePacked("["))) {
+          Json = string(abi.encodePacked(Json, TempJson));
+        } else {
+          Json = string(abi.encodePacked(Json, ",", TempJson));
+        }
+        I++;
+      }
+      Json = string(abi.encodePacked(Json, "]"));
+      return(Json);
+    }
+
     function SetExternalContractWhitelist(address _Contract, bool _State) external onlyOwner {
       Whitelisted[_Contract] = _State;
     }
