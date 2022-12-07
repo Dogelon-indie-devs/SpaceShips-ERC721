@@ -91,7 +91,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       MintingEnabled = _State;
     }
     
-    function TotalSupply() public view returns (uint256) {    
+    function totalSupply() public view returns (uint256) {    
       return(TotalShipCount);             
     }
 
