@@ -129,11 +129,6 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       }
     }
 
-    function burnToken(uint256 _TokenID) external {
-      require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Burn Method!"); 
-      _burn(_TokenID);
-    }
-
     function whitelisted_contract_mint(address _NewTokenOwner, uint8 _Class) external {
       require(_Class < Classes.length, "Class Not Found!");
       require(Whitelisted[msg.sender] || msg.sender == Owner, "Only Whitelisted Contracts Can Use This Mint Method!"); 
@@ -161,5 +156,5 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       ShipClass[_TokenID] = _Class;
       ReadyAtBlockHeight[_TokenID] = block.number + Classes[_Class].BuildDaysInBlockHeight;
     }
-
+	
 }
