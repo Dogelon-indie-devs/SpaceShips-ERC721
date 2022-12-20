@@ -36,7 +36,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
   
     constructor() ERC721("DOGELONSPACESHIPS", "ELONSHIP") {
       Owner = msg.sender;
-	  MintingEnabled = false;
+	    MintingEnabled = false;
       initializeClasses();
       _setDefaultRoyalty(Owner, 1000);
     }
@@ -67,6 +67,15 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       Classes.push(MyNewClass);
     }
     
+    function addNewClasses(uint256[] memory _ClassesData) public onlyOwner {
+      for (uint I = 0; I < _ClassesData.length; I++) {
+        uint Res = I % 3;
+        if (Res == 0) {
+          addNewClass(_ClassesData[I], uint24(_ClassesData[I + 1]), uint(_ClassesData[I + 2]));  
+        }       
+      }
+    }
+
     function getClasses() public view returns (NewClass[] memory) {
       return Classes;
     }
