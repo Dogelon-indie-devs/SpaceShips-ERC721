@@ -75,6 +75,10 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
         }       
       }
     }
+    
+    function setClassPrice(uint _Class, uint256 _Price) public onlyOwner {
+      Classes[_Class].DOGELONPrice = _Price;
+    }
 
     function getClasses() public view returns (NewClass[] memory) {
       return Classes;
