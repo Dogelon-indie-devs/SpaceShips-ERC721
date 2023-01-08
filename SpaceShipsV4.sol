@@ -54,7 +54,7 @@ contract SpaceShipsNFTs is ERC721, ERC2981, Ownable {
       if (block.number > ReadyAtBlockHeight[tokenId]) {
         return string(abi.encodePacked(_BaseURI, tokenId.toString(), ".json"));
       }
-		return _BluePrintURI;
+      return string(abi.encodePacked(_BluePrintURI, tokenId.toString(), ".json"));
     }
 
     function addNewClass(uint256 _DOGELONPrice, 
